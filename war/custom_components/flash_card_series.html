@@ -1,0 +1,277 @@
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="flash_card.html">
+<template id="flash_card_series">
+  <style>   
+  :host {
+    height: 100%;
+    width: 100%;
+    display: block;
+  }
+
+  paper-slider {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  core-icon[icon="chevron-left"],
+  core-icon[icon="chevron-right"] {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    z-index: 100;
+  }
+
+  #previous-flash-card-link {
+    height: 50%;
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    
+    right: auto;
+  }
+
+  #next-flash-card-link {
+    height: 50%;
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+
+    left: auto;
+  }
+  
+  @media (max-width: 600px) {
+    #next-flash-card-link {
+      right: -15px;
+    }
+
+    #previous-flash-card-link {
+      left: -15px;
+    }
+  }
+
+  @media (min-width: 600px) {
+    #next-flash-card-link {
+      right: -50px;
+      right: 8px; /** hack for safari */
+    }
+
+    #previous-flash-card-link {
+      left: -50px;
+      left: 8px; /** hack for safari */
+    }
+  }
+
+  .hide-element {
+    display: none !important;
+  }
+
+  .show-element {
+    display: block !important;
+  }
+
+  #element-wrapper {
+    height: 100%;
+    width: 100%;
+    display: block;
+  }
+  
+  </style>
+  <span id="element-wrapper">
+    <core-icon icon="chevron-left" id="previous-flash-card-link"></core-icon>
+    <span id="flash-card-wrapper">
+        <flash-card front-side-content="" front-side-language=""
+      back-side-content="" back-side-details=""
+      back-side-language="" flash-card-id=""
+      flash-card-id=""
+      hide-text-on-card=""></flash-card>
+    </span>
+    <core-icon icon="chevron-right" id="next-flash-card-link"></core-icon>
+    <paper-slider id="flash-card-progression-slider" value="0" max="255" role="slider"></paper-slider>
+  </span>
+</template>
+
+<script type="text/javascript">
+FlashCardSeries = function() {
+  this.flashCards_ = [
+    {
+      frontSideContent: 'Wife',
+      frontSideLanguage: 'en-US',
+      backSideContent: '妻子',
+      backSideLanguage: 'zh-CN'
+    }
+  ];
+
+  this.appSettings_ = {};
+
+  this.currentFlashCardIndexNum_ = 0;
+};
+
+
+FlashCardSeries.prototype.getAppSettings_ = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    req.open('GET', '/_/getSettings');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.appSettings_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send();
+  });
+  return promise;
+};
+
+
+FlashCardSeries.prototype.loadFlashCardsJson_ = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    req.open('GET', '/_/getFlashCards');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.flashCards_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send();
+  });
+  return promise;
+};
+
+
+FlashCardSeries.prototype.loadFlashCard = function(elementWrapper, indexNum) {
+  var hideTextOnCardSetting = 'false';
+  if (this.appSettings_ &&
+      this.appSettings_.hide_text_on_card === true ||
+      this.appSettings_.hide_text_on_card === 'true') {
+    hideTextOnCardSetting = 'true';
+  }
+
+  var startOnBackSideOfCardSetting = 'false';
+  if (this.appSettings_ &&
+      this.appSettings_.start_on_back_side_of_card === true ||
+      this.appSettings_.start_on_back_side_of_card === 'true') {
+    startOnBackSideOfCardSetting = 'true';
+  }
+
+  elementWrapper.querySelector('#flash-card-wrapper').innerHTML =
+      '<flash-card front-side-content="' + this.flashCards_[indexNum].frontSideContent + '" ' +
+      'front-side-language="' + this.flashCards_[indexNum].frontSideLanguage + '" ' +
+      'back-side-content="' + this.flashCards_[indexNum].backSideContent + '" ' +
+      'back-side-details="' + this.flashCards_[indexNum].backSideDetails + '" ' +
+      'back-side-language="' + this.flashCards_[indexNum].backSideLanguage + '" ' +
+      'flash-card-id="' + this.flashCards_[indexNum].flashCardId + '" ' +
+      'start-on-back-side-of-card="' + startOnBackSideOfCardSetting + '" ' +
+      'hide-text-on-card="' + hideTextOnCardSetting + '"></flash-card>';
+   this.currentFlashCardIndexNum_ = indexNum;
+
+   if (this.currentFlashCardIndexNum_ <= 0) {
+     elementWrapper.querySelector('#previous-flash-card-link').classList.remove('show-element');
+     elementWrapper.querySelector('#previous-flash-card-link').classList.add('hide-element');
+   } else {
+     elementWrapper.querySelector('#previous-flash-card-link').classList.remove('hide-element');
+     elementWrapper.querySelector('#previous-flash-card-link').classList.add('show-element');   
+   }
+   if (this.currentFlashCardIndexNum_ >= this.flashCards_.length - 1) {
+      elementWrapper.querySelector('#next-flash-card-link').classList.remove('show-element');
+      elementWrapper.querySelector('#next-flash-card-link').classList.add('hide-element');
+   } else {
+      elementWrapper.querySelector('#next-flash-card-link').classList.remove('hide-element');
+      elementWrapper.querySelector('#next-flash-card-link').classList.add('show-element');   
+   }
+};
+
+
+FlashCardSeries.prototype.setupFlashCardSeriesElement = function(template) {
+  var this_ = this;
+
+  var promise = new Promise(function(resolve, reject) {
+    // Define and register <shadow-element>
+    // that uses Shadow DOM and a template.
+    var proto2 = Object.create(HTMLElement.prototype);
+
+    proto2.createdCallback = function() {
+      // import template into
+      var clone = document.importNode(template, true);
+
+      // store wrapper, used frequently
+      var elementWrapper = clone.querySelector('#element-wrapper');
+
+      var progressSliderElement = clone.querySelector('#flash-card-progression-slider');
+      if (this_.flashCards_.length <= 1) {
+        progressSliderElement.classList.add('hidden-element');
+      } else {
+        progressSliderElement.setAttribute('max', this_.flashCards_.length - 1);
+      }
+      progressSliderElement.addEventListener('change', function() {
+        this_.loadFlashCard(elementWrapper, progressSliderElement.immediateValue);
+      });
+
+      // Attach event listeners to next/prev.
+      clone.querySelector('#next-flash-card-link').addEventListener('click', function() {
+        this_.loadFlashCard(elementWrapper, this_.currentFlashCardIndexNum_ + 1);
+        progressSliderElement.increment();
+      });
+      clone.querySelector('#previous-flash-card-link').addEventListener('click', function() {
+        this_.loadFlashCard(elementWrapper, this_.currentFlashCardIndexNum_ - 1);
+        progressSliderElement.decrement();
+      });
+
+      // put flash card in
+      this_.loadFlashCard.call(this_, elementWrapper, this_.currentFlashCardIndexNum_);
+
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+      resolve();
+    };
+
+    document.registerElement('flash-card-series', {prototype: proto2});
+
+  });
+  return promise;
+};
+
+(function(window, document) {
+  // Refers to the "importer", which is index.html
+  var thatDoc = document;
+
+  // Refers to the "importee"
+  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+  // Gets content from <template>
+  var template = thisDoc.querySelector('template').content;
+
+  var elementHelper = new FlashCardSeries();
+  elementHelper.getAppSettings_()
+    .then(elementHelper.loadFlashCardsJson_.bind(elementHelper))
+    .then(elementHelper.setupFlashCardSeriesElement.bind(elementHelper, template));
+    
+  })(window, document);
+</script>

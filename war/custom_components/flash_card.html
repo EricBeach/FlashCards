@@ -1,0 +1,405 @@
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/core-icons/av-icons.html">
+<template id="flash_card">
+  <style>   
+  :host {
+    height: 100%;
+    width: 100%;
+    display: block;
+  }
+  div.container {
+    height: 100%;
+    width: 100%;
+  }
+  
+  .centered-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: inherit;
+    opacity: 1;
+    height: 100%;
+  }
+
+  @media (max-width: 600px) {
+    .centered-content {
+      font-size: 1.75em;
+    }
+  }
+
+  @media (min-width: 600px) {
+    .centered-content {
+      font-size: 3em;
+    }
+  }
+
+  .footer-left-links {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding-left: 20px;
+    padding-bottom: 5px;
+  }
+
+  .footer-right-links {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding-right: 20px;
+    padding-bottom: 5px;
+  }
+
+  .footer-right-links core-icon,
+  .footer-left-links core-icon {
+    cursor: pointer;
+  }
+
+  core-icon.inactive {
+    cursor: auto;
+  }
+
+  core-icon.hidden {
+    visibility: hidden;
+  }
+
+  span.hide-text {
+    visibility: hidden;
+  }
+
+  /* provide more space between icons on mobile */
+  @media (max-width: 850px) {
+    .footer-right-links core-icon,
+    .footer-left-links core-icon {
+      margin: 0px 12px 0px 12px;
+    }
+  }
+
+  .container .card-content-block-container {
+    width: 100%;
+  }
+
+  .container .card-content-block {
+    display: block;
+    text-align: center;
+  }
+
+/**********************
+ * CSS for card flip  */
+/* card front and back should be white */
+.front,
+.back {
+  background-color: white;
+}
+
+/* entire container, keeps perspective */
+.flip-container {
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  -ms-perspective: 1000;
+  perspective: 1000;
+
+  -ms-transform: perspective(1000px);
+  -moz-transform: perspective(1000px);
+}
+
+/* flip the pane when class flipper is toggled */
+.flip-container.flip .flipper {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+  -o-transform: rotateY(180deg);
+}
+
+/* make everything take up the entire space */
+.flip-container,
+.front,
+.back {
+  width: 100%;
+  height: 100%;
+}
+
+/* flip speed goes here; flipper needs to take up entire space */
+.flipper {
+  -webkit-transition: 0.5s;
+  -webkit-transform-style: preserve-3d;
+  -ms-transition: 0.5s;
+
+  -moz-transition: 0.5s;
+  -moz-transform: perspective(1000px);
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+
+  transition: 0.5s;
+  transform-style: preserve-3d;
+
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* hide back of pane during swap */
+.front,
+.back {
+  backface-visibility: hidden;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+/* front pane, placed above back */
+.front {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+  transform: rotateY(180deg);
+}
+
+/* CSS for Safari */
+.front, .back {
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  -webkit-transition: 0.5s;
+  -webkit-transform-style: preserve-3d;
+  -webkit-transform: rotateY(0deg);
+
+  -moz-transition: 0.5s;
+  -moz-transform-style: preserve-3d;
+  -moz-transform: rotateY(0deg);
+
+  -o-transition: 0.5s;
+  -o-transform-style: preserve-3d;
+  -o-transform: rotateY(0deg);
+
+  -ms-transition: 0.5s;
+  -ms-transform-style: preserve-3d;
+  -ms-transform: rotateY(0deg);
+
+  transition: 0.5s;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.front {
+  -webkit-transform: rotateY(0deg);
+  -ms-transform: rotateY(0deg);
+  z-index: 2;
+}
+
+.back {
+  -webkit-transform: rotateY(-180deg);
+  -moz-transform: rotateY(-180deg);
+  -o-transform: rotateY(-180deg);
+  -ms-transform: rotateY(-180deg);
+  transform: rotateY(-180deg);
+}
+  </style>
+  <div class="container">
+
+<div id="flip-card-inner-container" class="flip-container">
+  <div class="flipper">
+    <div class="front centered-content"><!-- card front content -->
+      <span class="card-content-block-container">
+        <span class="card-content-block" id="front-side-content"></span>
+      </span>
+
+      <div class="footer-right-links">
+        <core-icon icon="av:volume-up" id="front-hear-link"></core-icon>
+        <core-icon icon="autorenew" id="front-swap-link"></core-icon>
+      </div>
+    </div>
+    <div class="back centered-content"><!-- card back content -->
+      <span class="card-content-block-container">
+        <span class="card-content-block" id="back-side-content"></span>
+        <span class="card-content-block" id="back-side-details"></span>
+      </span>
+
+      <div class="footer-left-links">
+        <core-icon icon="thumb-up" id="back-thumb-up-link"></core-icon>
+        <core-icon icon="thumb-down" id="back-thumb-down-link"></core-icon>
+      </div>
+      <div class="footer-right-links">
+        <core-icon icon="av:volume-up" id="back-hear-link"></core-icon>
+        <core-icon icon="autorenew" id="back-swap-link"></core-icon>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+</template>
+
+<script type="text/javascript">
+// TODO: Gray out features if offline - https://developer.mozilla.org/en-US/docs/Online_and_offline_events
+
+FlashCard = function() {
+  this.flashCardId_ = null;
+
+  this.flashCardInteractionRecorded_ = false;
+};
+
+
+FlashCard.prototype.recordAnswer = function(isCorrect) {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    if (this.flashCardInteractionRecorded_) {
+      resolve(true);
+    }
+
+    // Do the usual XHR stuff
+    var req = new XMLHttpRequest();
+    req.open('POST', '/_/postFlashCardInteractions', true);
+    req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    req.onload = function() {
+      // This is called even on 404 etc
+      // so check the status
+      if (req.status == 200) {
+        resolve(true);
+      }
+      else {
+        // Otherwise reject with the status text
+        // which will hopefully be a meaningful error
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error("Network Error"));
+    };
+
+    // Make the request
+    req.send('flashCardId=' + this_.flashCardId_ + '&isCorrect=' + isCorrect);
+  });
+  return promise;
+};
+
+
+FlashCard.prototype.speakContent = function(textToSpeak, language) {
+   // Create a new instance of SpeechSynthesisUtterance
+   var newUtterance = new SpeechSynthesisUtterance();
+
+   // Set the text
+   newUtterance.text = textToSpeak;
+
+   // Set the speed
+   newUtterance.rate = 0;
+
+   // Set the language
+   if (language) {
+     newUtterance.lang = language;
+   }
+
+   // Add this text to the utterance queue
+   window.speechSynthesis.speak(newUtterance);
+}
+
+
+FlashCard.prototype.setupFlashCardElement = function(template) {
+  var this_ = this;
+
+  // Define and register <shadow-element>
+  // that uses Shadow DOM and a template.
+  var FlashCardProto = Object.create(HTMLElement.prototype);
+
+  FlashCardProto.createdCallback = function() {
+    // Read HTML attributes on host element
+    var frontSideContent = this.getAttribute('front-side-content');
+    var backSideContent = this.getAttribute('back-side-content');
+    var backSideDetails = this.getAttribute('back-side-details');
+    var frontSideLanguage = this.getAttribute('front-side-language');
+    var backSideLanguage = this.getAttribute('back-side-language');
+    this_.flashCardId_ = this.getAttribute('flash-card-id');
+
+    // import template's content
+    var clone = document.importNode(template, true);
+
+    // Utilize HTML attributes on  host element.
+    if (this.getAttribute('hide-text-on-card') &&
+        this.getAttribute('hide-text-on-card') == 'true') {
+      clone.querySelector('#front-side-content').classList.add('hide-text');
+      clone.querySelector('#back-side-content').classList.add('hide-text');
+      clone.querySelector('#back-side-details').classList.add('hide-text');
+    }
+
+    if (this.getAttribute('start-on-back-side-of-card') &&
+        this.getAttribute('start-on-back-side-of-card') == 'true') {
+      clone.querySelector('#flip-card-inner-container').classList.toggle('flip');
+    }
+    clone.querySelector('#front-side-content').innerHTML = frontSideContent;
+    clone.querySelector('#back-side-content').innerHTML = backSideContent;
+
+    if (backSideDetails && backSideDetails.length > 0) {
+      clone.querySelector('#back-side-details').innerHTML = backSideDetails;
+    } else {
+      clone.querySelector('#back-side-details').innerHTML = '';
+    }
+
+
+    // Attach DOM Event listeners.
+    var flipCardInnerContainerDom = clone.querySelector('#flip-card-inner-container');
+    clone.querySelector('#back-swap-link').addEventListener('click', function() {
+      flipCardInnerContainerDom.classList.toggle('flip');
+    });
+    clone.querySelector('#front-swap-link').addEventListener('click', function() {
+      flipCardInnerContainerDom.classList.toggle('flip');
+    });
+    clone.querySelector('#back-hear-link').addEventListener('click', function() {
+      this_.speakContent(backSideContent, backSideLanguage);
+    });
+    clone.querySelector('#front-hear-link').addEventListener('click', function() {
+      this_.speakContent(frontSideContent, frontSideLanguage);
+    });
+    clone.querySelector('#back-thumb-up-link').addEventListener('click', function() {
+      this_.recordAnswer.call(this_, true).then(function() {
+        this_.flashCardInteractionRecorded_ = true;
+        flipCardInnerContainerDom.querySelector('#back-thumb-up-link').classList.add('inactive');
+        flipCardInnerContainerDom.querySelector('#back-thumb-down-link').classList.add('hidden');
+        flipCardInnerContainerDom.querySelector('#back-thumb-down-link').classList.add('inactive');
+      });
+    });
+    clone.querySelector('#back-thumb-down-link').addEventListener('click', function() {
+      this_.recordAnswer.call(this_, false).then(function() {
+        this_.flashCardInteractionRecorded_ = true;
+        flipCardInnerContainerDom.querySelector('#back-thumb-down-link').classList.add('inactive');
+        flipCardInnerContainerDom.querySelector('#back-thumb-up-link').classList.add('hidden');
+        flipCardInnerContainerDom.querySelector('#back-thumb-up-link').classList.add('inactive');
+      });
+    });
+
+
+    // Last step: append custom element into DOM.
+    var root = this.createShadowRoot();
+    root.appendChild(clone);
+  };
+
+  document.registerElement('flash-card', {prototype: FlashCardProto});
+};
+
+
+(function(window, document) {
+  // Refers to the "importer", which is index.html
+  var thatDoc = document;
+
+  // Refers to the "importee"
+  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+  // Gets content from <template>
+  var template = thisDoc.querySelector('template').content;
+
+  var element = new FlashCard();
+  element.setupFlashCardElement(template);  
+})(window, document);
+</script>

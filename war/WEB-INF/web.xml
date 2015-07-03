@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  <servlet>
+    <servlet-name>FlashCardInteractionsJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.FlashCardInteractionsJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FlashCardInteractionsJsonServlet</servlet-name>
+    <url-pattern>/_/getFlashCardInteractions</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FlashCardInteractionsJsonServlet</servlet-name>
+    <url-pattern>/_/postFlashCardInteractions</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>FlashCardsJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.FlashCardsJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FlashCardsJsonServlet</servlet-name>
+    <url-pattern>/_/getFlashCards</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>SettingsJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.SettingsJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SettingsJsonServlet</servlet-name>
+    <url-pattern>/_/getSettings</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SettingsJsonServlet</servlet-name>
+    <url-pattern>/_/postSettings</url-pattern>
+  </servlet-mapping>  
+
+  <servlet>
+    <servlet-name>AdminHomepageServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.AdminHomepageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminHomepageServlet</servlet-name>
+    <url-pattern>/admin/</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>EditIndividualFlashCardServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.EditIndividualFlashCardServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditIndividualFlashCardServlet</servlet-name>
+    <url-pattern>/admin/edit_individual_flashcard</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ListFlashCardsServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.ListFlashCardsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ListFlashCardsServlet</servlet-name>
+    <url-pattern>/admin/list_flashcards</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>EditIndividualLabelServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.EditIndividualLabelServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditIndividualLabelServlet</servlet-name>
+    <url-pattern>/admin/edit_individual_label</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ListLabelsServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.ListLabelsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ListLabelsServlet</servlet-name>
+    <url-pattern>/admin/list_labels</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>EditIndividualFlashCardLabelServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.EditIndividualFlashCardLabelServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditIndividualFlashCardLabelServlet</servlet-name>
+    <url-pattern>/admin/edit_applied_labels</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ClearUserDataServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.admin.ClearUserDataServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ClearUserDataServlet</servlet-name>
+    <url-pattern>/admin/clear_user_data</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- Enforces user logins for all pages -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+    <!-- A guarantee of "CONFIDENTIAL" requires SSL -->
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+ <!--  Only allow admins to see admin section -->
+  <security-constraint>
+    <web-resource-collection>
+        <web-resource-name>admin</web-resource-name>
+        <url-pattern>/admin/</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+        <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+</web-app>

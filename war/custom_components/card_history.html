@@ -1,0 +1,221 @@
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<template id="card_history">
+  <style>
+  .wrap {
+    display: flex;
+    display: -webkit-flex;
+    width: 100% ;
+    justify-content: center;
+    -webkit-justify-content: center;
+  }
+  .cell {
+    display: flex;
+    display: -webkit-flex;
+    height: 3rem;
+    align-items: center;
+    -webkit-align-items: center;
+  }
+  .card {
+    flex: 1;
+    -webkit-flex: 1;
+    overflow: hidden;
+  }
+  .time {
+    width: 80px;
+    justify-content: center;
+    -webkit-justify-content: center;
+  }
+  @media (max-width: 600px) {
+    .time {
+      display: none;
+    }
+  }
+  .correct {
+    width: 40px;
+    justify-content: center;
+    -webkit-justify-content: center;
+  }
+  </style>
+  <h1>History</h1>
+  <div id="history_results_wrapper">
+  </div>
+</template>
+
+<template id="flash_card_interaction">
+  <div class="wrap">
+    <div class="cell card"></div>
+    <div class="cell time"></div>
+    <div class="cell correct"></div>
+  </div>
+</template>
+
+<script>
+
+CardHistory = function(thisDoc) {
+  this.flashCardInteractions_ = [];
+  this.flashCardsMap_ = {};
+  this.thisDoc_ = thisDoc;
+};
+
+
+CardHistory.prototype.getFlashCardInteractions = function(maxNumResults) {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    req.open('GET', '/_/getFlashCardInteractions');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.flashCardInteractions_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send();
+  });
+  return promise;
+};
+
+
+CardHistory.prototype.getFlashCardData = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    var queryUrl = '/_/getFlashCards?responseMethod=mapById&requestedFlashCardIds=';
+    for (var i = 0; i < this_.flashCardInteractions_.length; i++) {
+      queryUrl += this_.flashCardInteractions_[i].flashCardId + encodeURIComponent(',')
+    }
+    queryUrl = queryUrl.substring(0, queryUrl.length - encodeURIComponent(',').length);
+    req.open('GET', queryUrl);
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.flashCardsMap_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send();
+  });
+  return promise;
+};
+
+
+CardHistory.prototype.setupCardHistoryElement = function(template) {
+  var this_ = this;
+
+  // Define and register <shadow-element>
+  // that uses Shadow DOM and a template.
+  var CardHistoryProto = Object.create(HTMLElement.prototype);
+
+  CardHistoryProto.createdCallback = function() {
+    // import template's content
+    var clone = document.importNode(template, true);
+
+    this_.populateHistory_.call(this_, clone);
+
+    // Last step: append custom element into DOM.
+    var root = this.createShadowRoot();
+    root.appendChild(clone);
+  };
+
+  document.registerElement('card-history', {prototype: CardHistoryProto});
+};
+
+
+CardHistory.prototype.populateHistory_ = function(cardHistoryElem) {
+  var template = this.thisDoc_.querySelector('#flash_card_interaction').content;
+  for (var i = 0; i < this.flashCardInteractions_.length; i++) {
+    var flashCardInteractionClone = document.importNode(template, true);
+    flashCardInteractionClone.querySelector('.card').innerHTML =
+        this.getFlashCardFormattedForDisplay_(
+            this.flashCardInteractions_[i].flashCardId);
+    flashCardInteractionClone.querySelector('.time').innerHTML =
+        this.getTimestampFormattedForDisplay_(
+            this.flashCardInteractions_[i].timestamp);
+    flashCardInteractionClone.querySelector('.correct').innerHTML =
+        this.getHtmlWasAnswerCorrectFormattedForDisplay_(
+            this.flashCardInteractions_[i].wasAnswerCorrect);
+    cardHistoryElem.appendChild(flashCardInteractionClone);
+  }
+};
+
+
+CardHistory.prototype.getFlashCardFormattedForDisplay_ = function(flashCardId) {
+  if (this.flashCardsMap_[flashCardId]) {
+    return this.flashCardsMap_[flashCardId].frontSideContent;
+  } else {
+    return '';
+  }
+};
+
+
+CardHistory.prototype.getHtmlWasAnswerCorrectFormattedForDisplay_ =
+    function(wasCorrect) {
+  if (wasCorrect) {
+    return '<core-icon icon="thumb-up"></core-icon>';
+  } else {
+    return '<core-icon icon="thumb-down"></core-icon>';
+  }
+};
+
+
+CardHistory.prototype.getTimestampFormattedForDisplay_ = function(timestmap) {
+  var localDate = new Date(timestmap * 1000);
+  var currentTimestamp = (new Date().getTime()) / 1000;
+  if (currentTimestamp - timestmap < 60*60*24) {
+    var hours = localDate.getHours();
+    var minutes = localDate.getMinutes();
+    if (minutes < 10) {
+      minutes = "0" + minutes;
+    }
+    var suffix = "AM";
+    if (hours >= 12) {
+      suffix = "PM";
+      hours = hours - 12;
+     }
+     if (hours == 0) {
+       hours = 12;
+     }
+    var displayDate = hours + ":" + minutes + " " + suffix;
+    return displayDate;
+  } else {
+    var displayDate = (localDate.getMonth() + 1) + '/' + localDate.getDate() + '/' +
+        localDate.getFullYear().toString().substr(2,2);
+    return displayDate;
+  }
+};
+
+
+(function(window, document) {
+  // Refers to the "importer", which is index.html
+  var thatDoc = document;
+
+  // Refers to the "importee"
+  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+  // Gets content from <template>
+  var template = thisDoc.querySelector('#card_history').content;
+
+  var element = new CardHistory(thisDoc);
+  element.getFlashCardInteractions()
+    .then(element.getFlashCardData.bind(element))
+    .then(element.setupCardHistoryElement.bind(element, template));  
+})(window, document);
+</script>

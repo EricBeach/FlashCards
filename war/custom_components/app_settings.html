@@ -1,0 +1,193 @@
+<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<template id="app_settings">
+  <style>  
+    .setting-block {
+      padding: 8px 0px 8px 0px;
+    }
+    .setting-block > div {
+      display: inline;
+    }
+    .colored {
+      background: #4285f4;
+      color: #fff;
+    }
+
+  </style>
+  <h1>Settings</h1>
+  <p class="user-email-address"></p>
+  <div class="setting-block">
+    <paper-toggle-button id="setting__start_on_back_side_of_card" checked="false" role="button" touch-action="pan-y"></paper-toggle-button>
+    <div>Start on back side of card</div>
+  </div>
+  <div class="setting-block">
+    <paper-toggle-button id="setting__hide_text_on_card" checked="false" role="button" touch-action="pan-y"></paper-toggle-button>
+    <div>Hide text on card</div>
+  </div>
+  <div class="setting-block">
+    <paper-button id="sign-out-button" raised class="colored" role="button">Sign Out</paper-button>
+  </div>
+</template>
+
+<script>
+AppSettings = function(thisDoc, template) {
+  this.appSettings_ = {};
+
+  this.thisDoc_ = thisDoc;
+  this.template_ = template;
+  this.clonedElem_ = null;
+};
+
+
+AppSettings.prototype.getAppSettings = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    req.open('GET', '/_/getSettings');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.appSettings_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send();
+  });
+  return promise;
+};
+
+
+AppSettings.prototype.updateAppSetting = function(settingName, settingValue) {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    req.open('POST', '/_/postSettings');
+    req.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.appSettings_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send(settingName + '=' + settingValue);
+  });
+  return promise;
+};
+
+
+AppSettings.prototype.signUserOutOfApplication = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    window.location = this_.appSettings_.userLogoutUrl;
+    resolve();
+  });
+  return promise;
+};
+
+
+AppSettings.prototype.setupAppSettingsElement = function(template) {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+
+    // Define and register <shadow-element>
+    // that uses Shadow DOM and a template.
+    var AppSettingsProto = Object.create(HTMLElement.prototype);
+
+    AppSettingsProto.createdCallback = function() {
+      // import template's content
+      var clone = document.importNode(template, true);
+
+      clone.querySelector('.user-email-address').innerHTML =
+          this_.appSettings_.userEmailAddress;
+
+      clone.querySelector('#sign-out-button').addEventListener('click', function() {
+        this_.signUserOutOfApplication.call(this_);
+      });
+
+      // Last step: append custom element into DOM.
+      var root = this.createShadowRoot();
+      root.appendChild(clone);
+      this_.clonedElem_ = root;
+
+      resolve();
+    };
+
+    document.registerElement('app-settings', {prototype: AppSettingsProto});
+  });
+  return promise;
+};
+
+
+AppSettings.prototype.populateAppSettings = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var settingsKeys = this_.appSettings_.validSettingKeys;
+    for (var i = 0; i < settingsKeys.length; i++) {
+      var settingKey = settingsKeys[i];
+      var potentialSettingFormFieldId = 'setting__' + settingKey;
+      var settingFormElem = this_.clonedElem_.querySelector('#' + potentialSettingFormFieldId);
+      if (settingFormElem) {
+
+
+        // Apply DOM listeners.
+        settingFormElem.addEventListener('change', function() {
+          this_.updateAppSetting.call(this_, this.id, this.checked);
+        });
+
+
+        // Apply app setting.
+        if (this_.appSettings_[settingKey] != undefined) {
+          if (this_.appSettings_[settingKey] === true ||
+              this_.appSettings_[settingKey] === 'true') {
+            settingFormElem.setAttribute('checked', 'true');
+            settingFormElem.setAttribute('ariaPressed', 'true');
+          } else if (this_.appSettings_[settingKey] === false ||
+                     this_.appSettings_[settingKey] === 'false') {
+            settingFormElem.setAttribute('checked', 'false');
+            settingFormElem.setAttribute('ariaPressed', 'false');
+          }
+        }
+
+      }
+    }
+  });
+  return promise;
+};
+
+
+(function(window, document) {
+  // Refers to the "importer", which is index.html
+  var thatDoc = document;
+
+  // Refers to the "importee"
+  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+
+  // Gets content from <template>
+  var template = thisDoc.querySelector('#app_settings').content;
+
+  var element = new AppSettings(thisDoc, template);
+  element.getAppSettings()
+    .then(element.setupAppSettingsElement.bind(element, template))
+    .then(element.populateAppSettings.bind(element));  
+})(window, document);
+
+</script>
