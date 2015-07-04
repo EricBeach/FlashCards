@@ -37,25 +37,28 @@ public class FlashCardDatastoreHelper {
                             FilterOperator.IN,
                             listOfFlashCardKeys);
     Query query = new Query(FLASH_CARD_KIND_NAME).setFilter(propertyFilter);
-
-    List<Entity> listOfFlashCardEntities =
-        datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
-
-    List<FlashCard> listOfFlashCardObjects = new ArrayList<FlashCard>();
-    for (Entity flashCardEntity : listOfFlashCardEntities) {
-      FlashCard flashCard = convertPopulatedEntityIntoFlashCard(flashCardEntity);
-      listOfFlashCardObjects.add(flashCard);
-    }
-
-    return listOfFlashCardObjects;
+    FetchOptions fetchOptions = FetchOptions.Builder.withDefaults();
+    return executeQueryForFlashCardsAndPopulateResults(query, fetchOptions);
   }
 
   public List<FlashCard> getAllFlashCards() {
+    Query query = new Query(FLASH_CARD_KIND_NAME);
+    FetchOptions fetchOptions = FetchOptions.Builder.withDefaults();
+    return executeQueryForFlashCardsAndPopulateResults(query, fetchOptions);
+  }
+
+  public List<FlashCard> getRansomFlashCards(int limit) {
+    Query query = new Query(FLASH_CARD_KIND_NAME);
+    FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
+    return executeQueryForFlashCardsAndPopulateResults(query, fetchOptions);
+  }
+
+  private List<FlashCard> executeQueryForFlashCardsAndPopulateResults(Query query,
+      FetchOptions fetchOptions) {
     List<FlashCard> cards = new ArrayList<FlashCard>();
 
-    Query query = new Query(FLASH_CARD_KIND_NAME);
     List<Entity> listOfFlashCardEntities =
-        datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
+        datastoreService.prepare(query).asList(fetchOptions);
 
     List<FlashCard> listOfFlashCardObjects = new ArrayList<FlashCard>();
     for (Entity flashCardEntity : listOfFlashCardEntities) {

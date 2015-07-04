@@ -89,11 +89,14 @@ CardHistory.prototype.getFlashCardData = function() {
   var this_ = this;
   var promise = new Promise(function(resolve, reject) {
     var req = new XMLHttpRequest();
-    var queryUrl = '/_/getFlashCards?responseMethod=mapById&requestedFlashCardIds=';
-    for (var i = 0; i < this_.flashCardInteractions_.length; i++) {
-      queryUrl += this_.flashCardInteractions_[i].flashCardId + encodeURIComponent(',')
+    var queryUrl = '/_/getFlashCards?responseMethod=mapById';
+    if (this_.flashCardInteractions_.length > 0) {
+      queryUrl += '&requestedFlashCardIds=';
+      for (var i = 0; i < this_.flashCardInteractions_.length; i++) {
+        queryUrl += this_.flashCardInteractions_[i].flashCardId + encodeURIComponent(',')
+      }
+      queryUrl = queryUrl.substring(0, queryUrl.length - encodeURIComponent(',').length);
     }
-    queryUrl = queryUrl.substring(0, queryUrl.length - encodeURIComponent(',').length);
     req.open('GET', queryUrl);
 
     req.onload = function() {

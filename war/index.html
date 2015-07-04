@@ -76,6 +76,7 @@ vertical-content-body /deep/ h1 {
 
     <link rel="import" href="custom_components/app_settings.html">
     <link rel="import" href="custom_components/card_history.html">
+    <link rel="import" href="custom_components/flash_card_series_generator.html">
     <link rel="import" href="custom_components/flash_card_series.html">
     <link rel="import" href="custom_components/centered_content_body.html">
     <link rel="import" href="custom_components/vertical_content_body.html">
@@ -98,10 +99,11 @@ vertical-content-body /deep/ h1 {
           <span class="fouc-prevention">Menu</span>
         </core-toolbar>
         <core-menu>
+          <core-item id="home-menu-btn" icon="home" label="Home"><a href="#home"></a></core-item>
           <core-item id="about-menu-btn" icon="info" label="About"><a href="#about"></a></core-item>
           <core-item id="settings-menu-btn" icon="settings" label="Settings"><a href="#settings"></a></core-item>
           <core-item id="history-menu-btn" icon="history" label="History"><a href="#history"></a></core-item>
-          <core-item id="flash-cards-menu-btn" icon="view-agenda" label="Flash Cards"><a href="#cards"></a></core-item>
+          <core-item id="flash-cards-series-menu-btn" icon="view-agenda" label="Flash Cards"><a href=#card-series-generator></a></core-item>
         </core-menu>
       </core-header-panel>
 
@@ -129,9 +131,13 @@ vertical-content-body /deep/ h1 {
           <card-history></card-history>
         </vertical-content-body>
 
-        <div id="view--flash-cards" layout horizontal center center-justified fit class="hide-element view--centered-content">
-          <centered-content-body>
-            <flash-card-series style="width: 100%; height: 100%; display: block;"></flash-card-series>
+        <vertical-content-body id="view--series-generator" class="hide-element">
+          <flash-card-series-generator></flash-card-series-generatory>
+        </vertical-content-body>
+
+        <div id="view--flash-cards-home" layout horizontal center center-justified fit class="hide-element view--centered-content">
+          <centered-content-body id="view--flash-cards-home--contents">
+            <flash-card-series card-number-limit="20" style="width: 100%; height: 100%; display: block;"></flash-card-series>
           </centered-content-body>
         </div>
 

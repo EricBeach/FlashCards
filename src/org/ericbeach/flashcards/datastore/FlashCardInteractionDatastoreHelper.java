@@ -62,7 +62,7 @@ public class FlashCardInteractionDatastoreHelper {
     Entity flashCardInteractionEntity = new Entity(FLASH_CARD_INTERACTION_KIND_NAME);
     flashCardInteractionEntity.setProperty(FLASH_CARD_INTERACTION_FLASH_CARD_ID_PROPERTY_NAME,
         flashCardInteraction.getFlashCardId());
-    flashCardInteractionEntity.setUnindexedProperty(FLASH_CARD_INTERACTION_USER_EMAIL_ADDRESS_PROPERTY_NAME,
+    flashCardInteractionEntity.setProperty(FLASH_CARD_INTERACTION_USER_EMAIL_ADDRESS_PROPERTY_NAME,
         flashCardInteraction.getUserEmailAddress());
     flashCardInteractionEntity.setProperty(FLASH_CARD_INTERACTION_WAS_ANSWER_CORRECT_PROPERTY_NAME,
         flashCardInteraction.getWasAnswerCorrect());

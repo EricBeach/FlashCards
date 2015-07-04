@@ -74,4 +74,18 @@ public class Label {
   public void removeChildLabelId(long oldChildLabelId) {
     childrenLabelIds.remove(oldChildLabelId);
   }
+
+  public String toJson() {
+    String json = "{"
+        + "\"labelId\" : " + labelId + ","
+        + "\"parentLabelId\" : " + parentLabelId + ","
+        + "\"labelName\" : \"" + labelName + "\","
+        + "\"childrenLabelIds\" : " + getChildrenLabelIdsAsJson()
+        + "}";
+    return json;
+  }
+
+  private String getChildrenLabelIdsAsJson() {
+    return "[]";
+  }
 }

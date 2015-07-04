@@ -43,7 +43,7 @@
 
     left: auto;
   }
-  
+
   @media (max-width: 600px) {
     #next-flash-card-link {
       right: -15px;
@@ -84,11 +84,7 @@
   <span id="element-wrapper">
     <core-icon icon="chevron-left" id="previous-flash-card-link"></core-icon>
     <span id="flash-card-wrapper">
-        <flash-card front-side-content="" front-side-language=""
-      back-side-content="" back-side-details=""
-      back-side-language="" flash-card-id=""
-      flash-card-id=""
-      hide-text-on-card=""></flash-card>
+        <!-- <flash-card> element inserted here -->
     </span>
     <core-icon icon="chevron-right" id="next-flash-card-link"></core-icon>
     <paper-slider id="flash-card-progression-slider" value="0" max="255" role="slider"></paper-slider>
@@ -97,18 +93,14 @@
 
 <script type="text/javascript">
 FlashCardSeries = function() {
-  this.flashCards_ = [
-    {
-      frontSideContent: 'Wife',
-      frontSideLanguage: 'en-US',
-      backSideContent: '妻子',
-      backSideLanguage: 'zh-CN'
-    }
-  ];
-
+  this.flashCardIdsToFetch_ = null;
+  this.cardNumberLimit_ = null;
+  this.flashCards_ = [];
   this.appSettings_ = {};
 
   this.currentFlashCardIndexNum_ = 0;
+
+  this.elementWrapper_ = null;
 };
 
 
@@ -143,7 +135,13 @@ FlashCardSeries.prototype.loadFlashCardsJson_ = function() {
   var this_ = this;
   var promise = new Promise(function(resolve, reject) {
     var req = new XMLHttpRequest();
-    req.open('GET', '/_/getFlashCards');
+    var urlToQuery = '/_/getFlashCards';
+    if (this_.flashCardIdsToFetch_ == null && this_.cardNumberLimit_ != null) {
+      urlToQuery += '?numLimit=' + this_.cardNumberLimit_;
+    } else if (this_.flashCardIdsToFetch_ != null) {
+      urlToQuery += '?requestedFlashCardIds=' + this_.flashCardIdsToFetch_;
+    }
+    req.open('GET', urlToQuery);
 
     req.onload = function() {
       if (req.status == 200) {
@@ -215,63 +213,79 @@ FlashCardSeries.prototype.setupFlashCardSeriesElement = function(template) {
   var promise = new Promise(function(resolve, reject) {
     // Define and register <shadow-element>
     // that uses Shadow DOM and a template.
-    var proto2 = Object.create(HTMLElement.prototype);
+    var FlashCardSeriesProto = Object.create(HTMLElement.prototype);
 
-    proto2.createdCallback = function() {
+    FlashCardSeriesProto.createdCallback = function() {
+    console.log('inside created callback');
       // import template into
       var clone = document.importNode(template, true);
 
+      // get variables used in element
+      this_.cardNumberLimit_ = this.getAttribute('card-number-limit');
+      this_.flashCardIdsToFetch_ = this.getAttribute('flash-card-ids');
+
       // store wrapper, used frequently
-      var elementWrapper = clone.querySelector('#element-wrapper');
-
-      var progressSliderElement = clone.querySelector('#flash-card-progression-slider');
-      if (this_.flashCards_.length <= 1) {
-        progressSliderElement.classList.add('hidden-element');
-      } else {
-        progressSliderElement.setAttribute('max', this_.flashCards_.length - 1);
-      }
-      progressSliderElement.addEventListener('change', function() {
-        this_.loadFlashCard(elementWrapper, progressSliderElement.immediateValue);
-      });
-
-      // Attach event listeners to next/prev.
-      clone.querySelector('#next-flash-card-link').addEventListener('click', function() {
-        this_.loadFlashCard(elementWrapper, this_.currentFlashCardIndexNum_ + 1);
-        progressSliderElement.increment();
-      });
-      clone.querySelector('#previous-flash-card-link').addEventListener('click', function() {
-        this_.loadFlashCard(elementWrapper, this_.currentFlashCardIndexNum_ - 1);
-        progressSliderElement.decrement();
-      });
-
-      // put flash card in
-      this_.loadFlashCard.call(this_, elementWrapper, this_.currentFlashCardIndexNum_);
+      this_.elementWrapper_ = clone.querySelector('#element-wrapper');
 
       var root = this.createShadowRoot();
       root.appendChild(clone);
       resolve();
     };
-
-    document.registerElement('flash-card-series', {prototype: proto2});
+    document.registerElement('flash-card-series', {prototype: FlashCardSeriesProto});
 
   });
   return promise;
 };
 
+
+FlashCardSeries.prototype.populateFlashCardElement = function() {
+  var this_ = this;
+
+  var promise = new Promise(function(resolve, reject) {
+    var progressSliderElement = this_.elementWrapper_.querySelector(
+        '#flash-card-progression-slider');
+
+    if (this_.flashCards_.length <= 1) {
+      progressSliderElement.classList.add('hidden-element');
+    } else {
+      progressSliderElement.setAttribute('max', this_.flashCards_.length - 1);
+    }
+    progressSliderElement.addEventListener('change', function() {
+      this_.loadFlashCard(this_.elementWrapper_, progressSliderElement.immediateValue);
+    });
+
+    // Attach event listeners to next/prev.
+    this_.elementWrapper_.querySelector('#next-flash-card-link').addEventListener('click', function() {
+      this_.loadFlashCard(this_.elementWrapper_, this_.currentFlashCardIndexNum_ + 1);
+      progressSliderElement.increment();
+    });
+    this_.elementWrapper_.querySelector('#previous-flash-card-link').addEventListener('click', function() {
+      this_.loadFlashCard(this_.elementWrapper_, this_.currentFlashCardIndexNum_ - 1);
+      progressSliderElement.decrement();
+    });
+
+    // put flash card in
+    this_.loadFlashCard.call(this_, this_.elementWrapper_, this_.currentFlashCardIndexNum_);
+    resolve();
+  });
+  return promise;
+};
+
+
 (function(window, document) {
-  // Refers to the "importer", which is index.html
+  // Refers to the 'importer', which is index.html
   var thatDoc = document;
 
-  // Refers to the "importee"
+  // Refers to the 'importee'
   var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
   // Gets content from <template>
   var template = thisDoc.querySelector('template').content;
 
-  var elementHelper = new FlashCardSeries();
-  elementHelper.getAppSettings_()
-    .then(elementHelper.loadFlashCardsJson_.bind(elementHelper))
-    .then(elementHelper.setupFlashCardSeriesElement.bind(elementHelper, template));
-    
+  var flashCardSeriesHelper = new FlashCardSeries();
+  flashCardSeriesHelper.getAppSettings_()
+    .then(flashCardSeriesHelper.setupFlashCardSeriesElement.bind(flashCardSeriesHelper, template))
+    .then(flashCardSeriesHelper.loadFlashCardsJson_.bind(flashCardSeriesHelper, this))
+    .then(flashCardSeriesHelper.populateFlashCardElement.bind(flashCardSeriesHelper));
   })(window, document);
 </script>

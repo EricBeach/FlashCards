@@ -27,6 +27,24 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>LabelsJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.LabelsJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LabelsJsonServlet</servlet-name>
+    <url-pattern>/_/getLabels</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>FlashCardSeriesGeneratorJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.FlashCardSeriesGeneratorJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FlashCardSeriesGeneratorJsonServlet</servlet-name>
+    <url-pattern>/_/getFlashCardSeries</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>SettingsJsonServlet</servlet-name>
     <servlet-class>org.ericbeach.flashcards.servlets.SettingsJsonServlet</servlet-class>
   </servlet>

@@ -1,121 +1,158 @@
+var Navigation = {};
+
+Navigation.showInitialViewOnPage = function() {
+  if (window.location.hash) {
+    switch (window.location.hash) {
+      case '#history':
+        Navigation.showHistoryView();
+        document.getElementById('history-menu-btn').classList.add('core-selected');
+        break;
+      case '#about':
+        Navigation.showAboutView();
+        document.getElementById('about-menu-btn').classList.add('core-selected');
+        break;
+      case '#settings':
+        Navigation.showSettingsView();
+        document.getElementById('settings-menu-btn').classList.add('core-selected');
+        break;
+      case '#card-series-generator':
+        Navigation.showFlashCardsSeriesView();
+        document.getElementById('flash-cards-series-menu-btn').classList.add('core-selected');
+        break;
+      default:
+        Navigation.showFlashCardsHomeView();
+        document.getElementById('home-menu-btn').classList.add('core-selected');
+    }
+  } else {
+    Navigation.showFlashCardsHomeView();
+    document.getElementById('home-menu-btn').classList.add('core-selected');
+  }
+};
+
+
+Navigation.removeFoucProtection = function() {
+  var elements = document.querySelectorAll('.fouc-prevention');
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].classList.remove('fouc-prevention');
+  }
+};
+
+
+Navigation.hideAllVerticalContent = function() {
+  var elements = document.querySelectorAll('vertical-content-body');
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].classList.remove('show-element');
+    elements[i].classList.add('hide-element');
+  }
+};
+
+
+Navigation.hideAllCenteredContent = function() {
+  var elements = document.querySelectorAll('.view--centered-content');
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].classList.remove('show-element');
+    elements[i].classList.add('hide-element');
+  }
+};
+
+
+Navigation.removeAllMenuItemSelectedIndication = function() {
+  var elements = document.querySelectorAll('.core-selected');
+  for (var i = 0; i < elements.length; i++) {
+    elements[i].classList.remove('core-selected');
+  }
+};
+
+
+Navigation.hideAllContent = function() {
+  Navigation.hideAllVerticalContent();
+  Navigation.hideAllCenteredContent();
+  Navigation.removeAllMenuItemSelectedIndication();
+};
+
+
+Navigation.showFlashCardsHomeView = function() {
+  var element = document.getElementById('view--flash-cards-home');
+  element.classList.remove('hide-element');
+};
+
+
+Navigation.showSettingsView = function() {
+  var element = document.getElementById('view--settings');
+  element.classList.remove('hide-element');
+};
+
+
+Navigation.showFlashCardsSeriesView = function() {
+  var element = document.getElementById('view--series-generator');
+  element.classList.remove('hide-element');
+};
+
+
+Navigation.showAboutView = function() {
+  var element = document.getElementById('view--about');
+  element.classList.remove('hide-element');
+  element.classList.add('show-element');
+};
+
+
+Navigation.showHistoryView = function() {
+  var element = document.getElementById('view--history');
+  element.classList.remove('hide-element');
+  element.classList.add('show-element');
+};
+
+
+Navigation.loadFlashCardSeriesWithIds = function(ids) {
+  document.getElementById('view--flash-cards-home--contents').innerHTML =
+    '<flash-card-series card-number-limit="4" style="width: 100%; height: 100%; display: block;"></flash-card-series>';
+  Navigation.hideAllContent();
+  Navigation.showFlashCardsHomeView();
+};
+
+
 document.addEventListener('polymer-ready', function() {
-  function showInitialViewOnPage() {
-    if (window.location.hash) {
-      switch (window.location.hash) {
-        case '#history':
-          showHistoryView();
-          document.getElementById('history-menu-btn').classList.add('core-selected');
-          break;
-        case '#about':
-          showAboutView();
-          document.getElementById('about-menu-btn').classList.add('core-selected');
-          break;
-        case '#settings':
-          showSettingsView();
-          document.getElementById('settings-menu-btn').classList.add('core-selected');
-          break;
-        default:
-          showFlashCardsView();
-          document.getElementById('flash-cards-menu-btn').classList.add('core-selected');
-      }
-    } else {
-      showFlashCardsView();
-      document.getElementById('flash-cards-menu-btn').classList.add('core-selected');
-    }
-  }
-
-  function removeFoucProtection() {
-    var elements = document.querySelectorAll('.fouc-prevention');
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('fouc-prevention');
-    }
-  }
-
-  function hideAllVerticalContent() {
-    var elements = document.querySelectorAll('vertical-content-body');
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('show-element');
-      elements[i].classList.add('hide-element');
-    }
-  }
-
-  function hideAllCenteredContent() {
-    var elements = document.querySelectorAll('.view--centered-content');
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('show-element');
-      elements[i].classList.add('hide-element');
-    }
-  }
-
-  function removeAllMenuItemSelectedIndication() {
-    var elements = document.querySelectorAll('.core-selected');
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].classList.remove('core-selected');
-    }
-  }
-
-  function hideAllContent() {
-    hideAllVerticalContent();
-    hideAllCenteredContent();
-    removeAllMenuItemSelectedIndication();
-  }
-
-  function showSettingsView() {
-    var element = document.getElementById('view--settings');
-    element.classList.remove('hide-element');
-  }
-
-  function showFlashCardsView() {
-    var element = document.getElementById('view--flash-cards');
-    element.classList.remove('hide-element');
-  }
-
-  function showAboutView() {
-    var element = document.getElementById('view--about');
-    element.classList.remove('hide-element');
-    element.classList.add('show-element');
-  }
-
-  function showHistoryView() {
-    var element = document.getElementById('view--history');
-    element.classList.remove('hide-element');
-    element.classList.add('show-element');
-  }
-
   var drawerPanel = document.getElementById('drawerPanel');
   var navicon = document.getElementById('navicon');  
   navicon.addEventListener('click', function() {
     drawerPanel.togglePanel();
   });
 
+  var homeBtn = document.getElementById('home-menu-btn');
+  homeBtn.addEventListener('click', function() {
+    Navigation.hideAllContent();
+    Navigation.showFlashCardsHomeView();
+    drawerPanel.closeDrawer();
+  });
+
   var aboutBtn = document.getElementById('about-menu-btn');
   aboutBtn.addEventListener('click', function() {
-    hideAllContent();
-    showAboutView();
+    Navigation.hideAllContent();
+    Navigation.showAboutView();
     drawerPanel.closeDrawer();
   });
 
   var historyBtn = document.getElementById('history-menu-btn');
   historyBtn.addEventListener('click', function() {
-    hideAllContent();
-    showHistoryView();
+    Navigation.hideAllContent();
+    Navigation.showHistoryView();
     drawerPanel.closeDrawer();
   });
 
   var settingsBtn = document.getElementById('settings-menu-btn');
   settingsBtn.addEventListener('click', function() {
-    hideAllContent();
-    showSettingsView();
+    Navigation.hideAllContent();
+    Navigation.showSettingsView();
     drawerPanel.closeDrawer();
   });
 
-  var flashCardsBtn = document.getElementById('flash-cards-menu-btn');
+  var flashCardsBtn = document.getElementById('flash-cards-series-menu-btn');
   flashCardsBtn.addEventListener('click', function() {
-    hideAllContent();
-    showFlashCardsView();
+    Navigation.hideAllContent();
+    Navigation.showFlashCardsSeriesView();
     drawerPanel.closeDrawer();
   });
 
-  removeFoucProtection();
-  showInitialViewOnPage();
+  Navigation.removeFoucProtection();
+  Navigation.showInitialViewOnPage();
 });

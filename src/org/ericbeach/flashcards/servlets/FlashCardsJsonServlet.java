@@ -58,6 +58,9 @@ public class FlashCardsJsonServlet extends HttpServlet {
       List<Long> flashCardIdsToGet = getListOfFlashCardIdsToQueryFromString(
           req.getParameter("requestedFlashCardIds"));
       return flashCardDatastoreHelper.getFlashCardsByIds(flashCardIdsToGet);
+    } else if (req.getParameter("numLimit") != null) {
+      int limit = Integer.parseInt(req.getParameter("numLimit"));
+      return flashCardDatastoreHelper.getRansomFlashCards(limit);
     } else {
       return flashCardDatastoreHelper.getAllFlashCards();
     }

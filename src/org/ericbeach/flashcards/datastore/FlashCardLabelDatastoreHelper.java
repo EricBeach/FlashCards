@@ -10,6 +10,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -74,8 +75,10 @@ public class FlashCardLabelDatastoreHelper {
                             FilterOperator.EQUAL,
                             labelId);
 
-    Query query = new Query(FLASH_CARD_LABEL_KIND).setFilter(
-        flashCardIdFilter).setFilter(labelIdFilter);
+    Filter flashCardIdAndLabelIdFilter = CompositeFilterOperator.and(flashCardIdFilter,
+        labelIdFilter);
+
+    Query query = new Query(FLASH_CARD_LABEL_KIND).setFilter(flashCardIdAndLabelIdFilter);
     List<Entity> listOfFlashCardLabels =
         datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
     for (Entity flashCardLabelId : listOfFlashCardLabels) {
