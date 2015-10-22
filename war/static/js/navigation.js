@@ -80,12 +80,14 @@ Navigation.showFlashCardsHomeView = function() {
 Navigation.showSettingsView = function() {
   var element = document.getElementById('view--settings');
   element.classList.remove('hide-element');
+  element.classList.add('show-element');
 };
 
 
 Navigation.showFlashCardsSeriesView = function() {
   var element = document.getElementById('view--series-generator');
   element.classList.remove('hide-element');
+  element.classList.add('show-element');
 };
 
 
@@ -104,10 +106,19 @@ Navigation.showHistoryView = function() {
 
 
 Navigation.loadFlashCardSeriesWithIds = function(ids) {
+  var flashCardIdsAsString = '';
+  for (var i = 0; i < ids.length; i++) {
+    flashCardIdsAsString += ids[i] + ',';
+  }
+  flashCardIdsAsString = flashCardIdsAsString.substring(
+      0, flashCardIdsAsString.length - 1);
+
   document.getElementById('view--flash-cards-home--contents').innerHTML =
-    '<flash-card-series card-number-limit="4" style="width: 100%; height: 100%; display: block;"></flash-card-series>';
+    '<flash-card-series flash-card-ids="' + flashCardIdsAsString + '"' +
+    ' style="width: 100%; height: 100%; display: block;"></flash-card-series>';
   Navigation.hideAllContent();
   Navigation.showFlashCardsHomeView();
+  document.getElementById('flash-cards-series-menu-btn').classList.add('core-selected');
 };
 
 

@@ -26,7 +26,7 @@
     <p>Only include words seen in the following days: <input type="number" id="include-seen-days" value="1" length="4" /></p>
     <p>Exclude words seen in the following days: <input type="number" id="exclude-seen-days" value="1" length="4" /></p>
     <p>Only include words with less than the following percent correct: <input type="number" id="percent-correct-ceiling" value="40" length="4" /> </p>
-    <p>Maximum Number of Cards: <input type="number" id="max-num-cards-in-series" value="40" length="4" /></p>
+    <p>Maximum number of cards: <input type="number" id="max-num-cards-in-series" value="40" length="4" /></p>
     <p>Labels to include</p>
     <paper-button id="generate-series-button" raised class="colored" role="button">Start</paper-button>
   </div>
@@ -72,37 +72,45 @@ FlashCardSeriesGenerator.prototype.loadFlashCardIdsInSeries = function() {
   var this_ = this;
   var promise = new Promise(function(resolve, reject) {
     var req = new XMLHttpRequest();
-    var urlToQuery = '/_/getFlashCardSeries?';
-
     var includeSeenDays = parseInt(this_.elementWrapper_.
         querySelector('#include-seen-days').value, 10);
+    var dataToSend = '';
     if (includeSeenDays > 0) {
-      urlToQuery += 'include_seen_days=' + includeSeenDays + '&';
+      dataToSend += 'include_seen_days=' + includeSeenDays + '&';
     }
 
     var excludeSeenDays = parseInt(this_.elementWrapper_.
         querySelector('#exclude-seen-days').value, 10);
     if (excludeSeenDays > 0) {
-      urlToQuery += 'exclude_seen_days=' + excludeSeenDays + '&';
+      dataToSend += 'exclude_seen_days=' + excludeSeenDays + '&';
     }
 
     var percentCorrectCeiling = parseInt(this_.elementWrapper_.
         querySelector('#percent-correct-ceiling').value, 10);
     if (percentCorrectCeiling > 0) {
-      urlToQuery += 'percent_correct_series=' + percentCorrectCeiling + '&';
+      dataToSend += 'percent_correct_series=' + percentCorrectCeiling + '&';
     }
 
     var maxNumCardsInSeries = parseInt(this_.elementWrapper_.
         querySelector('#max-num-cards-in-series').value, 10);
     if (maxNumCardsInSeries > 0) {
-      urlToQuery += 'max_num_cards_in_series=' + maxNumCardsInSeries + '&';
+      dataToSend += 'max_num_cards_in_series=' + maxNumCardsInSeries + '&';
     }
 
-    req.open('GET', urlToQuery);
+    if (dataToSend.length > 0) {
+      dataToSend = dataToSend.substr(0, dataToSend.length - 1);
+    }
+
+    // Using POST is a hack to get around limit of HTTP GET variables.
+    req.open('POST', '/_/postFlashCardSeriesRequest');
     req.onload = function() {
       if (req.status == 200) {
         this_.flashCardIdsInSeries_ = JSON.parse(req.response);
-        resolve();
+        if (this_.flashCardIdsInSeries_.length == 0) {
+          reject('No flash card IDs loaded.');
+        } else {
+          resolve();
+        }
       } else {
         reject(Error(req.statusText));
       }
@@ -114,13 +122,14 @@ FlashCardSeriesGenerator.prototype.loadFlashCardIdsInSeries = function() {
     };
 
     // Make the request
-    req.send();
+    req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    req.send(dataToSend);
   });
   return promise;
 };
 
 
-FlashCardSeriesGenerator.prototype.loadFlashCardSeries = function() {
+FlashCardSeriesGenerator.prototype.loadFlashCardSeriesElement = function() {
   Navigation.loadFlashCardSeriesWithIds(this.flashCardIdsInSeries_);
 };
 
@@ -159,7 +168,9 @@ FlashCardSeriesGenerator.prototype.populateElement = function() {
 
     this_.elementWrapper_.querySelector('#generate-series-button').addEventListener('click', function() {
       this_.loadFlashCardIdsInSeries.call(this_)
-          .then(this_.loadFlashCardSeries.bind(this_));
+          .then(this_.loadFlashCardSeriesElement.bind(this_), function(rejectionReason) {
+            alert('An error occurred loading flash card ids');
+          });
     });
 
     resolve();

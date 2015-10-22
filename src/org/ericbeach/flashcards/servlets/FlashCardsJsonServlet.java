@@ -3,8 +3,8 @@ package org.ericbeach.flashcards.servlets;
 import org.ericbeach.flashcards.datastore.FlashCardDatastoreHelper;
 import org.ericbeach.flashcards.models.FlashCard;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServlet;
@@ -14,6 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class FlashCardsJsonServlet extends HttpServlet {
   private final FlashCardDatastoreHelper flashCardDatastoreHelper = new FlashCardDatastoreHelper();
+  private static final Logger log = Logger.getLogger(FlashCardsJsonServlet.class.getName());
+
+  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    doGet(req, resp);
+  }
 
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     resp.setContentType("application/json");
@@ -22,6 +27,7 @@ public class FlashCardsJsonServlet extends HttpServlet {
     List<FlashCard> requestedFlashCards = getRequestedFlashCards(req);
 
     String responseMethod = req.getParameter("responseMethod");
+    log.info("Response Method: " + responseMethod);
     if (responseMethod != null && responseMethod.equals("mapById")) {
       writeResponseAsMapOfFlashCardsById(requestedFlashCards, resp);
     } else {
@@ -37,7 +43,9 @@ public class FlashCardsJsonServlet extends HttpServlet {
           + flashCard.toJson()
           + ",";
     }
-    flashCardsJson = flashCardsJson.substring(0, flashCardsJson.length()-1);
+    if (!requestedFlashCards.isEmpty()) {
+      flashCardsJson = flashCardsJson.substring(0, flashCardsJson.length()-1);
+    }
     flashCardsJson += "}";
     resp.getWriter().println(flashCardsJson);
   }
@@ -48,14 +56,16 @@ public class FlashCardsJsonServlet extends HttpServlet {
     for (FlashCard flashCard : requestedFlashCards) {
       flashCardsJson += flashCard.toJson() + ",";
     }
-    flashCardsJson = flashCardsJson.substring(0, flashCardsJson.length()-1);
+    if (!requestedFlashCards.isEmpty()) {
+      flashCardsJson = flashCardsJson.substring(0, flashCardsJson.length()-1);
+    }
     flashCardsJson += "]";
     resp.getWriter().println(flashCardsJson);
   }
 
   private List<FlashCard> getRequestedFlashCards(HttpServletRequest req) {
     if (req.getParameter("requestedFlashCardIds") !=null) {
-      List<Long> flashCardIdsToGet = getListOfFlashCardIdsToQueryFromString(
+      List<Long> flashCardIdsToGet = Common.getListOfFlashCardIdsToQueryFromString(
           req.getParameter("requestedFlashCardIds"));
       return flashCardDatastoreHelper.getFlashCardsByIds(flashCardIdsToGet);
     } else if (req.getParameter("numLimit") != null) {
@@ -65,20 +75,4 @@ public class FlashCardsJsonServlet extends HttpServlet {
       return flashCardDatastoreHelper.getAllFlashCards();
     }
   }
-
-  private List<Long> getListOfFlashCardIdsToQueryFromString(String httpParamValue) {
-    List<Long> listOfFlashCardItsToFetch = new ArrayList<Long>();
-
-    String pattern = "^[0-9]+(,[0-9]+)*$";
-    if (!httpParamValue.matches(pattern)) {
-      return listOfFlashCardItsToFetch;
-    }
-
-    String[] flashCardIds = httpParamValue.split(",");
-    for (String flashCardId : flashCardIds) {
-      listOfFlashCardItsToFetch.add(Long.parseLong(flashCardId));
-    }
-    return listOfFlashCardItsToFetch;
-  }
-
 }

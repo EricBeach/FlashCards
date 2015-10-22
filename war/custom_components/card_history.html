@@ -89,15 +89,18 @@ CardHistory.prototype.getFlashCardData = function() {
   var this_ = this;
   var promise = new Promise(function(resolve, reject) {
     var req = new XMLHttpRequest();
-    var queryUrl = '/_/getFlashCards?responseMethod=mapById';
+
+    var dataToSend = 'responseMethod=mapById';
     if (this_.flashCardInteractions_.length > 0) {
-      queryUrl += '&requestedFlashCardIds=';
+      dataToSend += '&requestedFlashCardIds=';
       for (var i = 0; i < this_.flashCardInteractions_.length; i++) {
-        queryUrl += this_.flashCardInteractions_[i].flashCardId + encodeURIComponent(',')
+        dataToSend += this_.flashCardInteractions_[i].flashCardId + encodeURIComponent(',')
       }
-      queryUrl = queryUrl.substring(0, queryUrl.length - encodeURIComponent(',').length);
+      dataToSend = dataToSend.substring(0, dataToSend.length - encodeURIComponent(',').length);
     }
-    req.open('GET', queryUrl);
+
+    // Using POST is a hack to get around limit of HTTP GET variables.
+    req.open('POST', '/_/postFlashCardsRequest');
 
     req.onload = function() {
       if (req.status == 200) {
@@ -114,7 +117,8 @@ CardHistory.prototype.getFlashCardData = function() {
     };
 
     // Make the request
-    req.send();
+    req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    req.send(dataToSend);
   });
   return promise;
 };

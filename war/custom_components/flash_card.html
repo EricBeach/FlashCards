@@ -33,6 +33,13 @@
     }
   }
 
+  #attempt-count {
+    font-size: 0.5em;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
   .footer-left-links {
     position: absolute;
     bottom: 0;
@@ -213,6 +220,7 @@
       <span class="card-content-block-container">
         <span class="card-content-block" id="front-side-content"></span>
       </span>
+      <span id="attempt-count"></span>
 
       <div class="footer-right-links">
         <core-icon icon="av:volume-up" id="front-hear-link"></core-icon>
@@ -321,6 +329,8 @@ FlashCard.prototype.setupFlashCardElement = function(template) {
     var backSideDetails = this.getAttribute('back-side-details');
     var frontSideLanguage = this.getAttribute('front-side-language');
     var backSideLanguage = this.getAttribute('back-side-language');
+    var numTimesAttempted = this.getAttribute('num-times-attempted');
+    var numTimesCorrect = this.getAttribute('num-times-correct');
     this_.flashCardId_ = this.getAttribute('flash-card-id');
 
     // import template's content
@@ -340,6 +350,16 @@ FlashCard.prototype.setupFlashCardElement = function(template) {
     }
     clone.querySelector('#front-side-content').innerHTML = frontSideContent;
     clone.querySelector('#back-side-content').innerHTML = backSideContent;
+    if (numTimesAttempted && numTimesCorrect && numTimesAttempted.length > 0 &&
+        numTimesCorrect.length > 0) {
+      numTimesCorrect = parseInt(numTimesCorrect, 10);
+      numTimesAttempted = parseInt(numTimesAttempted, 10);
+      if (!isNaN(numTimesCorrect) && !isNaN(numTimesAttempted) &&
+          numTimesCorrect > -1 && numTimesAttempted > -1) {
+        clone.querySelector('#attempt-count').innerHTML = numTimesCorrect + '/' +
+            numTimesAttempted;
+      }
+    }
 
     if (backSideDetails && backSideDetails.length > 0) {
       clone.querySelector('#back-side-details').innerHTML = backSideDetails;

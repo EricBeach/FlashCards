@@ -25,6 +25,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
     <servlet-name>FlashCardsJsonServlet</servlet-name>
     <url-pattern>/_/getFlashCards</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FlashCardsJsonServlet</servlet-name>
+    <url-pattern>/_/postFlashCardsRequest</url-pattern>
+  </servlet-mapping>
 
   <servlet>
     <servlet-name>LabelsJsonServlet</servlet-name>
@@ -42,6 +46,19 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   <servlet-mapping>
     <servlet-name>FlashCardSeriesGeneratorJsonServlet</servlet-name>
     <url-pattern>/_/getFlashCardSeries</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FlashCardSeriesGeneratorJsonServlet</servlet-name>
+    <url-pattern>/_/postFlashCardSeriesRequest</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>FlashCardInteractionsSummaryJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.flashcards.servlets.FlashCardInteractionsSummaryJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FlashCardInteractionsSummaryJsonServlet</servlet-name>
+    <url-pattern>/_/postFlashCardInteractionSummariesRequest</url-pattern>
   </servlet-mapping>
 
   <servlet>

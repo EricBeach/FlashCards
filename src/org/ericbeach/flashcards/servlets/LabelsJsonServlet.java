@@ -28,7 +28,9 @@ public class LabelsJsonServlet extends HttpServlet {
     for (Label label : requestedLabels) {
       labelsJson += label.toJson() + ",";
     }
-    labelsJson = labelsJson.substring(0, labelsJson.length() - 1);
+    if (!requestedLabels.isEmpty()) {
+      labelsJson = labelsJson.substring(0, labelsJson.length() - 1);
+    }
     labelsJson += "]";
     resp.getWriter().println(labelsJson);
   }

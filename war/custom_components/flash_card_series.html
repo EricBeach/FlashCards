@@ -96,6 +96,7 @@ FlashCardSeries = function() {
   this.flashCardIdsToFetch_ = null;
   this.cardNumberLimit_ = null;
   this.flashCards_ = [];
+  this.flashCardInteractionSummaries_ = {};
   this.appSettings_ = {};
 
   this.currentFlashCardIndexNum_ = 0;
@@ -135,13 +136,17 @@ FlashCardSeries.prototype.loadFlashCardsJson_ = function() {
   var this_ = this;
   var promise = new Promise(function(resolve, reject) {
     var req = new XMLHttpRequest();
-    var urlToQuery = '/_/getFlashCards';
+    var dataToSend = '';
     if (this_.flashCardIdsToFetch_ == null && this_.cardNumberLimit_ != null) {
-      urlToQuery += '?numLimit=' + this_.cardNumberLimit_;
+      dataToSend += 'numLimit=' + this_.cardNumberLimit_;
     } else if (this_.flashCardIdsToFetch_ != null) {
-      urlToQuery += '?requestedFlashCardIds=' + this_.flashCardIdsToFetch_;
+      dataToSend += 'requestedFlashCardIds=' + this_.flashCardIdsToFetch_;
     }
-    req.open('GET', urlToQuery);
+
+    // Using POST is a hack to get around limit of HTTP GET variables.
+    // var urlToQuery = '/_/getFlashCards?';
+    // req.open('GET', urlToQuery + dataToSend);
+    req.open('POST', '/_/postFlashCardsRequest');
 
     req.onload = function() {
       if (req.status == 200) {
@@ -158,7 +163,51 @@ FlashCardSeries.prototype.loadFlashCardsJson_ = function() {
     };
 
     // Make the request
-    req.send();
+    req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    req.send(dataToSend);
+  });
+  return promise;
+};
+
+
+FlashCardSeries.prototype.loadFlashCardInteractionSummariesJson_ = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    var dataToSend = '';
+    if (this_.flashCardIdsToFetch_ != null) {
+      dataToSend += 'requestedFlashCardIds=' + this_.flashCardIdsToFetch_;
+    } else {
+
+      dataToSend += 'requestedFlashCardIds=';
+      for (var i = 0; i < this_.flashCards_.length; i++) {
+        dataToSend += this_.flashCards_[i].flashCardId + ',';
+      }
+      if (this_.flashCards_.length > 0) {
+        dataToSend = dataToSend.substring(0, dataToSend.length - 1);
+      }
+    }
+
+    // Using POST is a hack to get around limit of HTTP GET variables.
+    req.open('POST', '/_/postFlashCardInteractionSummariesRequest');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.flashCardInteractionSummaries_ = JSON.parse(req.response);
+        resolve();
+      } else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    req.send(dataToSend);
   });
   return promise;
 };
@@ -179,6 +228,13 @@ FlashCardSeries.prototype.loadFlashCard = function(elementWrapper, indexNum) {
     startOnBackSideOfCardSetting = 'true';
   }
 
+  var numTimesAttempted = -1;
+  var numTimesCorrect = -1;
+  var flashCardId = this.flashCards_[indexNum].flashCardId;
+  if (this.flashCardInteractionSummaries_[flashCardId]) {
+    numTimesAttempted = this.flashCardInteractionSummaries_[flashCardId].numberOfTimesAttempted;
+    numTimesCorrect = this.flashCardInteractionSummaries_[flashCardId].numberOfTimesCorrect;
+  }
   elementWrapper.querySelector('#flash-card-wrapper').innerHTML =
       '<flash-card front-side-content="' + this.flashCards_[indexNum].frontSideContent + '" ' +
       'front-side-language="' + this.flashCards_[indexNum].frontSideLanguage + '" ' +
@@ -187,7 +243,9 @@ FlashCardSeries.prototype.loadFlashCard = function(elementWrapper, indexNum) {
       'back-side-language="' + this.flashCards_[indexNum].backSideLanguage + '" ' +
       'flash-card-id="' + this.flashCards_[indexNum].flashCardId + '" ' +
       'start-on-back-side-of-card="' + startOnBackSideOfCardSetting + '" ' +
-      'hide-text-on-card="' + hideTextOnCardSetting + '"></flash-card>';
+      'num-times-attempted="' + numTimesAttempted + '" ' +
+      'num-times-correct="' + numTimesCorrect + '"' +
+      '></flash-card>';
    this.currentFlashCardIndexNum_ = indexNum;
 
    if (this.currentFlashCardIndexNum_ <= 0) {
@@ -213,26 +271,7 @@ FlashCardSeries.prototype.setupFlashCardSeriesElement = function(template) {
   var promise = new Promise(function(resolve, reject) {
     // Define and register <shadow-element>
     // that uses Shadow DOM and a template.
-    var FlashCardSeriesProto = Object.create(HTMLElement.prototype);
-
-    FlashCardSeriesProto.createdCallback = function() {
-    console.log('inside created callback');
-      // import template into
-      var clone = document.importNode(template, true);
-
-      // get variables used in element
-      this_.cardNumberLimit_ = this.getAttribute('card-number-limit');
-      this_.flashCardIdsToFetch_ = this.getAttribute('flash-card-ids');
-
-      // store wrapper, used frequently
-      this_.elementWrapper_ = clone.querySelector('#element-wrapper');
-
-      var root = this.createShadowRoot();
-      root.appendChild(clone);
-      resolve();
-    };
-    document.registerElement('flash-card-series', {prototype: FlashCardSeriesProto});
-
+    resolve();
   });
   return promise;
 };
@@ -282,10 +321,37 @@ FlashCardSeries.prototype.populateFlashCardElement = function() {
   // Gets content from <template>
   var template = thisDoc.querySelector('template').content;
 
-  var flashCardSeriesHelper = new FlashCardSeries();
-  flashCardSeriesHelper.getAppSettings_()
-    .then(flashCardSeriesHelper.setupFlashCardSeriesElement.bind(flashCardSeriesHelper, template))
-    .then(flashCardSeriesHelper.loadFlashCardsJson_.bind(flashCardSeriesHelper, this))
-    .then(flashCardSeriesHelper.populateFlashCardElement.bind(flashCardSeriesHelper));
-  })(window, document);
+  // This is the proper way to generate an element. We need to put
+  // crucial logic in the createdCallback, which is a special function
+  // that has access to the newly created element (whereas
+  // thatDoc, thisDoc, template, etc. do not). In other words,
+  // only in createdCallback can we access the custom attributes
+  // and their corresponding values on the newly created element. 
+  FlashCardSeriesElem = Object.create(HTMLElement.prototype);
+  FlashCardSeriesElem.createdCallback = function() {
+    var flashCardSeries = new FlashCardSeries();
+
+    // import template into
+    var clone = document.importNode(template, true);
+
+    // get variables used in element
+    flashCardSeries.cardNumberLimit_ = this.getAttribute('card-number-limit');
+    flashCardSeries.flashCardIdsToFetch_ = this.getAttribute('flash-card-ids');
+
+    // store wrapper, used frequently
+    flashCardSeries.elementWrapper_ = clone.querySelector('#element-wrapper');
+
+    var root = this.createShadowRoot();
+    root.appendChild(clone);
+
+    flashCardSeries.getAppSettings_()
+      .then(flashCardSeries.setupFlashCardSeriesElement.bind(flashCardSeries, template))
+      .then(flashCardSeries.loadFlashCardsJson_.bind(flashCardSeries))
+      .then(flashCardSeries.loadFlashCardInteractionSummariesJson_.bind(flashCardSeries))
+      .then(flashCardSeries.populateFlashCardElement.bind(flashCardSeries));
+  };
+
+  document.registerElement('flash-card-series', {prototype: FlashCardSeriesElem});
+
+})(window, document);
 </script>

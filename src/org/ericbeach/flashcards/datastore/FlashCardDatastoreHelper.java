@@ -15,7 +15,9 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FlashCardDatastoreHelper {
   private static final String FLASH_CARD_KIND_NAME = "flash_card";
@@ -51,6 +53,19 @@ public class FlashCardDatastoreHelper {
     Query query = new Query(FLASH_CARD_KIND_NAME);
     FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
     return executeQueryForFlashCardsAndPopulateResults(query, fetchOptions);
+  }
+
+  public Set<Long> getAllFlashCardIds() {
+    Query query = new Query(FLASH_CARD_KIND_NAME);
+    FetchOptions fetchOptions = FetchOptions.Builder.withDefaults();
+    List<Entity> listOfFlashCardEntities =
+        datastoreService.prepare(query).asList(fetchOptions);
+    
+    Set<Long> setOfFlashCardIds = new HashSet<Long>();
+    for (Entity flashCardEntity : listOfFlashCardEntities) {
+      setOfFlashCardIds.add(flashCardEntity.getKey().getId());
+    }
+    return setOfFlashCardIds;
   }
 
   private List<FlashCard> executeQueryForFlashCardsAndPopulateResults(Query query,
