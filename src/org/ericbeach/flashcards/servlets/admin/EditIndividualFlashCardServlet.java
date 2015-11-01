@@ -71,12 +71,18 @@ public class EditIndividualFlashCardServlet extends HttpServlet {
   private String getHtmlBodyContents(String frontSideContents, String frontSideLanguage,
       String backSideContents, String backSideDetails, String backSideLanguage, long flashCardId) {
     String contents = "<form method=\"post\" action=\"/admin/edit_individual_flashcard\">"
-        + "<p>Front Side Contents: <input type=\"text\" name=\"front_side_contents\" value=\"" + frontSideContents + "\" size=\"40\" /></p>"
-        + "<p>Front Side Language: <select name=\"front_side_language\">" + getLanguageOption(frontSideLanguage) + "</select></p>"
-        + "<p>Back Side Contents: <input type=\"text\" name=\"back_side_contents\" value=\"" + backSideContents + "\" size=\"40\" /></p>"
-        + "<p>Back Side Details: <input type=\"text\" name=\"back_side_details\" value=\"" + backSideDetails + "\" size=\"40\" /></p>"
-        + "<p>Back Side Language: <select name=\"back_side_language\">" + getLanguageOption(backSideLanguage) + "</select></p>"
-        + "<input type=\"hidden\" name=\"flash_card_id\" value=\"" + flashCardId + "\">"
+        + "<p>Front Side Contents: <input type=\"text\" name=\"front_side_contents\" value=\""
+        + frontSideContents + "\" size=\"40\" /></p>"
+        + "<p>Front Side Language: <select name=\"front_side_language\">"
+        + getLanguageOption(frontSideLanguage) + "</select></p>"
+        + "<p>Back Side Contents: <input type=\"text\" name=\"back_side_contents\" value=\""
+        + backSideContents + "\" size=\"40\" /></p>"
+        + "<p>Back Side Details: <input type=\"text\" name=\"back_side_details\" value=\""
+        + backSideDetails + "\" size=\"40\" /></p>"
+        + "<p>Back Side Language: <select name=\"back_side_language\">"
+        + getLanguageOption(backSideLanguage) + "</select></p>"
+        + "<input type=\"hidden\" name=\"flash_card_id\" value=\""
+        + flashCardId + "\">"
         + "<button type=\"submit\">Submit Flash Card</button>"
         + "</form>";
     return contents;
@@ -91,7 +97,8 @@ public class EditIndividualFlashCardServlet extends HttpServlet {
     if (selectedLanguage.equals("zh-CN")) {
       znCnSelected = "selected";
     }
-    String contents = "<option " + enUsSelected + ">en-US</option><option " + znCnSelected + ">zh-CN</option>";
+    String contents = "<option " + enUsSelected + ">en-US</option><option "
+        + znCnSelected + ">zh-CN</option>";
     return contents;
   }
 

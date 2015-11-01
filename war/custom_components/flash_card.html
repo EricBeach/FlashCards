@@ -249,8 +249,6 @@
 </template>
 
 <script type="text/javascript">
-// TODO: Gray out features if offline - https://developer.mozilla.org/en-US/docs/Online_and_offline_events
-
 FlashCard = function() {
   this.flashCardId_ = null;
 
@@ -368,33 +366,46 @@ FlashCard.prototype.setupFlashCardElement = function(template) {
     }
 
     // Attach DOM Event listeners.
-    var flipCardInnerContainerDom = clone.querySelector('#flip-card-inner-container');
-    clone.querySelector('#back-swap-link').addEventListener('click', function() {
+    var flipCardInnerContainerDom = clone.querySelector(
+        '#flip-card-inner-container');
+    clone.querySelector('#back-swap-link').addEventListener(
+        'click', function() {
       flipCardInnerContainerDom.classList.toggle('flip');
     });
-    clone.querySelector('#front-swap-link').addEventListener('click', function() {
+    clone.querySelector('#front-swap-link').addEventListener(
+        'click', function() {
       flipCardInnerContainerDom.classList.toggle('flip');
     });
-    clone.querySelector('#back-hear-link').addEventListener('click', function() {
+    clone.querySelector('#back-hear-link').addEventListener(
+        'click', function() {
       this_.speakContent(backSideContent, backSideLanguage);
     });
-    clone.querySelector('#front-hear-link').addEventListener('click', function() {
+    clone.querySelector('#front-hear-link').addEventListener(
+        'click', function() {
       this_.speakContent(frontSideContent, frontSideLanguage);
     });
-    clone.querySelector('#back-thumb-up-link').addEventListener('click', function() {
+    clone.querySelector('#back-thumb-up-link').addEventListener(
+        'click', function() {
       this_.recordAnswer.call(this_, true).then(function() {
         this_.flashCardInteractionRecorded_ = true;
-        flipCardInnerContainerDom.querySelector('#back-thumb-up-link').classList.add('inactive');
-        flipCardInnerContainerDom.querySelector('#back-thumb-down-link').classList.add('hidden');
-        flipCardInnerContainerDom.querySelector('#back-thumb-down-link').classList.add('inactive');
+        flipCardInnerContainerDom.querySelector(
+            '#back-thumb-up-link').classList.add('inactive');
+        flipCardInnerContainerDom.querySelector(
+            '#back-thumb-down-link').classList.add('hidden');
+        flipCardInnerContainerDom.querySelector(
+            '#back-thumb-down-link').classList.add('inactive');
       });
     });
-    clone.querySelector('#back-thumb-down-link').addEventListener('click', function() {
+    clone.querySelector('#back-thumb-down-link').addEventListener(
+        'click', function() {
       this_.recordAnswer.call(this_, false).then(function() {
         this_.flashCardInteractionRecorded_ = true;
-        flipCardInnerContainerDom.querySelector('#back-thumb-down-link').classList.add('inactive');
-        flipCardInnerContainerDom.querySelector('#back-thumb-up-link').classList.add('hidden');
-        flipCardInnerContainerDom.querySelector('#back-thumb-up-link').classList.add('inactive');
+        flipCardInnerContainerDom.querySelector(
+            '#back-thumb-down-link').classList.add('inactive');
+        flipCardInnerContainerDom.querySelector(
+            '#back-thumb-up-link').classList.add('hidden');
+        flipCardInnerContainerDom.querySelector(
+            '#back-thumb-up-link').classList.add('inactive');
       });
     });
 
@@ -413,7 +424,8 @@ FlashCard.prototype.setupFlashCardElement = function(template) {
   var thatDoc = document;
 
   // Refers to the "importee"
-  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+  var thisDoc =
+      (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
   // Gets content from <template>
   var template = thisDoc.querySelector('template').content;

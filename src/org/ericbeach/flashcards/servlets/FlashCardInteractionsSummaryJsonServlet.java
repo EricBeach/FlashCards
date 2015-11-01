@@ -39,7 +39,8 @@ public class FlashCardInteractionsSummaryJsonServlet extends HttpServlet {
       flashCardInteractionsSummaryJson = "{";
       for (FlashCardInteractionSummary flashCardInteractionSummary :
            flashCardInteractionsSummary.values()) {
-        flashCardInteractionsSummaryJson += "\"" + flashCardInteractionSummary.getFlashCardId() + "\" : "
+        flashCardInteractionsSummaryJson += "\""
+           + flashCardInteractionSummary.getFlashCardId() + "\" : "
            + flashCardInteractionSummary.toJson() + ",";
       }
       if (flashCardInteractionsSummary.size() > 0) {

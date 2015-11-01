@@ -5,27 +5,33 @@ Navigation.showInitialViewOnPage = function() {
     switch (window.location.hash) {
       case '#history':
         Navigation.showHistoryView();
-        document.getElementById('history-menu-btn').classList.add('core-selected');
+        document.getElementById('history-menu-btn').classList.add(
+            'core-selected');
         break;
       case '#about':
         Navigation.showAboutView();
-        document.getElementById('about-menu-btn').classList.add('core-selected');
+        document.getElementById('about-menu-btn').classList.add(
+            'core-selected');
         break;
       case '#settings':
         Navigation.showSettingsView();
-        document.getElementById('settings-menu-btn').classList.add('core-selected');
+        document.getElementById('settings-menu-btn').classList.add(
+            'core-selected');
         break;
       case '#card-series-generator':
         Navigation.showFlashCardsSeriesView();
-        document.getElementById('flash-cards-series-menu-btn').classList.add('core-selected');
+        document.getElementById('flash-cards-series-menu-btn').classList.add(
+            'core-selected');
         break;
       default:
         Navigation.showFlashCardsHomeView();
-        document.getElementById('home-menu-btn').classList.add('core-selected');
+        document.getElementById('home-menu-btn').classList.add(
+            'core-selected');
     }
   } else {
     Navigation.showFlashCardsHomeView();
-    document.getElementById('home-menu-btn').classList.add('core-selected');
+    document.getElementById('home-menu-btn').classList.add(
+        'core-selected');
   }
 };
 
@@ -115,10 +121,12 @@ Navigation.loadFlashCardSeriesWithIds = function(ids) {
 
   document.getElementById('view--flash-cards-home--contents').innerHTML =
     '<flash-card-series flash-card-ids="' + flashCardIdsAsString + '"' +
-    ' style="width: 100%; height: 100%; display: block;"></flash-card-series>';
+    ' style="width: 100%; height: 100%; display: block;">' +
+    '</flash-card-series>';
   Navigation.hideAllContent();
   Navigation.showFlashCardsHomeView();
-  document.getElementById('flash-cards-series-menu-btn').classList.add('core-selected');
+  document.getElementById('flash-cards-series-menu-btn').classList.add(
+      'core-selected');
 };
 
 
@@ -157,7 +165,8 @@ document.addEventListener('polymer-ready', function() {
     drawerPanel.closeDrawer();
   });
 
-  var flashCardsBtn = document.getElementById('flash-cards-series-menu-btn');
+  var flashCardsBtn = document.getElementById(
+      'flash-cards-series-menu-btn');
   flashCardsBtn.addEventListener('click', function() {
     Navigation.hideAllContent();
     Navigation.showFlashCardsSeriesView();

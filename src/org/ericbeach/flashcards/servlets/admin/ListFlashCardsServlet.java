@@ -45,8 +45,10 @@ public class ListFlashCardsServlet extends HttpServlet {
     for (FlashCard flashCard : flashCards) {
       contents += "<tr>"
       + "  <td>" + i + "</td>"
-      + "  <td><a href=\"/admin/edit_individual_flashcard?flash_card_id=" + flashCard.getFlashCardId() + "\">x</a></td>"
-      + "  <td><a href=\"/admin/edit_applied_labels?flash_card_id=" + flashCard.getFlashCardId() + "\">x</a></td>"
+      + "  <td><a href=\"/admin/edit_individual_flashcard?flash_card_id="
+      + flashCard.getFlashCardId() + "\">x</a></td>"
+      + "  <td><a href=\"/admin/edit_applied_labels?flash_card_id="
+      + flashCard.getFlashCardId() + "\">x</a></td>"
       + "  <td>x</td>"
       + "  <td>&nbsp;</td>"
       + "  <td>" + flashCard.getFlashCardId() + "</td>"

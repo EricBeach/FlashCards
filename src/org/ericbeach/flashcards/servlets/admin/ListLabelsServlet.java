@@ -44,7 +44,8 @@ public class ListLabelsServlet extends HttpServlet {
         spacing = spacing.substring(0, spacing.length() - addSpacingString.length());
       }
 
-      contents += "<p>" + spacing + "<a href=\"/admin/edit_individual_label?label_id=" + label.getLabelId() + "\">"
+      contents += "<p>" + spacing + "<a href=\"/admin/edit_individual_label?label_id="
+          + label.getLabelId() + "\">"
           + label.getLabelName() + " (" + label.getLabelId() + ")</a></p>";
       previousLabel = label;
     }
@@ -66,7 +67,8 @@ public class ListLabelsServlet extends HttpServlet {
     for (Label label : labels) {
       contents += "<tr>"
       + "  <td>" + i + "</td>"
-      + "  <td><a href=\"/admin/edit_individual_label?label_id=" + label.getLabelId() + "\">x</a></td>"
+      + "  <td><a href=\"/admin/edit_individual_label?label_id="
+      + label.getLabelId() + "\">x</a></td>"
       + "  <td>x</td>"
       + "  <td>&nbsp;</td>"
       + "  <td>" + label.getLabelId() + "</td>"

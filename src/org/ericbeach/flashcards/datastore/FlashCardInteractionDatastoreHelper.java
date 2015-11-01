@@ -23,8 +23,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public class FlashCardInteractionDatastoreHelper {
-  private static final String FLASH_CARD_INTERACTION_KIND_NAME = "flash_card_interaction";
-  private static final String FLASH_CARD_INTERACTION_FLASH_CARD_ID_PROPERTY_NAME = "flash_card_id";
+  private static final String FLASH_CARD_INTERACTION_KIND_NAME =
+      "flash_card_interaction";
+  private static final String FLASH_CARD_INTERACTION_FLASH_CARD_ID_PROPERTY_NAME =
+      "flash_card_id";
   private static final String FLASH_CARD_INTERACTION_USER_EMAIL_ADDRESS_PROPERTY_NAME =
       "user_email_address";
   private static final String FLASH_CARD_INTERACTION_WAS_ANSWER_CORRECT_PROPERTY_NAME =

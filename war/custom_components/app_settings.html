@@ -119,7 +119,8 @@ AppSettings.prototype.setupAppSettingsElement = function(template) {
       clone.querySelector('.user-email-address').innerHTML =
           this_.appSettings_.userEmailAddress;
 
-      clone.querySelector('#sign-out-button').addEventListener('click', function() {
+      clone.querySelector('#sign-out-button').addEventListener(
+          'click', function() {
         this_.signUserOutOfApplication.call(this_);
       });
 
@@ -144,7 +145,8 @@ AppSettings.prototype.populateAppSettings = function() {
     for (var i = 0; i < settingsKeys.length; i++) {
       var settingKey = settingsKeys[i];
       var potentialSettingFormFieldId = 'setting__' + settingKey;
-      var settingFormElem = this_.clonedElem_.querySelector('#' + potentialSettingFormFieldId);
+      var settingFormElem = this_.clonedElem_.querySelector(
+          '#' + potentialSettingFormFieldId);
       if (settingFormElem) {
 
 
@@ -179,7 +181,8 @@ AppSettings.prototype.populateAppSettings = function() {
   var thatDoc = document;
 
   // Refers to the "importee"
-  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+  var thisDoc =
+      (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
   // Gets content from <template>
   var template = thisDoc.querySelector('#app_settings').content;

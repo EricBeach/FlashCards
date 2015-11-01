@@ -1,7 +1,9 @@
 package org.ericbeach.flashcards.servlets;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -50,11 +52,21 @@ public class FlashCardSeriesGeneratorJsonServlet extends HttpServlet {
           Integer.parseInt(req.getParameter("percent_correct_series"), 10);
     }
 
+    Set<Integer> labelIdsToInclude = new HashSet<Integer>();
+    if (req.getParameter("label_ids") != null
+        && req.getParameter("label_ids").length() > 0) {
+      labelIdsToInclude = getLabelIdsToInclude(req.getParameter("label_ids"));
+    }
+
     String userEmailAddress = usersService.getCurrentUserEmailAddress();
     List<Long> flashCardIds = flashCardSeriesGeneratorService.getFlashCardIdsByCriteria(
         includeCardsSeenInLastXDays, excludeCardsSeenInLastYDays, maxNumCardsInSeries,
         includeCardsAnsweredLessThanZPercentCorrectInSeries, userEmailAddress);
     resp.getWriter().println(getFlashCardIdsAsJson(flashCardIds));
+  }
+
+  private Set<Integer> getLabelIdsToInclude(String labelIds) {
+    return null;
   }
 
   private String getFlashCardIdsAsJson(List<Long> flashCardIds) {

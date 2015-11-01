@@ -94,9 +94,11 @@ CardHistory.prototype.getFlashCardData = function() {
     if (this_.flashCardInteractions_.length > 0) {
       dataToSend += '&requestedFlashCardIds=';
       for (var i = 0; i < this_.flashCardInteractions_.length; i++) {
-        dataToSend += this_.flashCardInteractions_[i].flashCardId + encodeURIComponent(',')
+        dataToSend += this_.flashCardInteractions_[i].flashCardId +
+            encodeURIComponent(',')
       }
-      dataToSend = dataToSend.substring(0, dataToSend.length - encodeURIComponent(',').length);
+      dataToSend = dataToSend.substring(0,
+          dataToSend.length - encodeURIComponent(',').length);
     }
 
     // Using POST is a hack to get around limit of HTTP GET variables.
@@ -147,7 +149,8 @@ CardHistory.prototype.setupCardHistoryElement = function(template) {
 
 
 CardHistory.prototype.populateHistory_ = function(cardHistoryElem) {
-  var template = this.thisDoc_.querySelector('#flash_card_interaction').content;
+  var template = this.thisDoc_.querySelector(
+      '#flash_card_interaction').content;
   for (var i = 0; i < this.flashCardInteractions_.length; i++) {
     var flashCardInteractionClone = document.importNode(template, true);
     flashCardInteractionClone.querySelector('.card').innerHTML =
@@ -164,7 +167,8 @@ CardHistory.prototype.populateHistory_ = function(cardHistoryElem) {
 };
 
 
-CardHistory.prototype.getFlashCardFormattedForDisplay_ = function(flashCardId) {
+CardHistory.prototype.getFlashCardFormattedForDisplay_ =
+    function(flashCardId) {
   if (this.flashCardsMap_[flashCardId]) {
     return this.flashCardsMap_[flashCardId].frontSideContent;
   } else {
@@ -203,7 +207,8 @@ CardHistory.prototype.getTimestampFormattedForDisplay_ = function(timestmap) {
     var displayDate = hours + ":" + minutes + " " + suffix;
     return displayDate;
   } else {
-    var displayDate = (localDate.getMonth() + 1) + '/' + localDate.getDate() + '/' +
+    var displayDate = (localDate.getMonth() + 1) + '/' +
+        localDate.getDate() + '/' +
         localDate.getFullYear().toString().substr(2,2);
     return displayDate;
   }

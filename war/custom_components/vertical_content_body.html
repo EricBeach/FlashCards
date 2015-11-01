@@ -23,7 +23,8 @@
     var thatDoc = document;
 
     // Refers to the "importee"
-    var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+    var thisDoc =
+        (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
     // Gets content from <template>
     var template = thisDoc.querySelector('template').content;

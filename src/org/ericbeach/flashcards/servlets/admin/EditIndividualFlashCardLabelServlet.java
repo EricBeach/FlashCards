@@ -18,11 +18,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
 public class EditIndividualFlashCardLabelServlet extends HttpServlet {
-  private final FlashCardDatastoreHelper flashCardDatastoreHelper = new FlashCardDatastoreHelper();
-  private final FlashCardLabelDatastoreHelper flashCardLabelDatastoreHelper = new FlashCardLabelDatastoreHelper();
-  private final LabelDatastoreHelper labelDatastoreHelper = new LabelDatastoreHelper();
+  private final FlashCardDatastoreHelper flashCardDatastoreHelper =
+      new FlashCardDatastoreHelper();
+  private final FlashCardLabelDatastoreHelper flashCardLabelDatastoreHelper =
+      new FlashCardLabelDatastoreHelper();
+  private final LabelDatastoreHelper labelDatastoreHelper =
+      new LabelDatastoreHelper();
 
-  private static final Logger log = Logger.getLogger(EditIndividualFlashCardLabelServlet.class.getName());
+  private static final Logger log = Logger.getLogger(
+      EditIndividualFlashCardLabelServlet.class.getName());
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -87,21 +91,38 @@ public class EditIndividualFlashCardLabelServlet extends HttpServlet {
 
     contents += "<fieldset>"
         + "<legend>Labels</legend>";
+
+    Label previousLabel = null;
+    String spacing = "";
+    final String addSpacingString = "&nbsp;&nbsp;";
     for (Label label : allLabels) {
+      if (previousLabel == null) {
+        spacing = "";
+      } else if (label.getParentLabelId() == Label.PARENT_LABEL_ID_FOR_NO_PARENT_LABEL) {
+        spacing = "";
+      } else if (label.getParentLabelId() == previousLabel.getParentLabelId()) {
+      } else if (label.getParentLabelId() == previousLabel.getLabelId()) {
+        spacing += addSpacingString;
+      } else {
+        spacing = spacing.substring(0, spacing.length() - addSpacingString.length());
+      }
+
       if (label.hasChildrenLabels()) {
-        contents += "<p>" + label.getLabelName() + "</p>";
+        contents += "<p>" + spacing + label.getLabelName() + "</p>";
       } else {
         String checked = "";
         if (currentLabelIds.contains(label.getLabelId())) {
           checked = " checked=\"checked\"";
         }
-        contents += "<p><input type=\"checkbox\" name=\"label_id\" " + checked
+        contents += "<p>" + spacing + "<input type=\"checkbox\" name=\"label_id\" " + checked
             + " value=\"" + label.getLabelId() + "\">" + label.getLabelName() + "</p>";
       }
+      previousLabel = label;
     }
     contents += "</fieldset>";
 
-    contents += "<input type=\"hidden\" name=\"flash_card_id\" value=\"" + flashCard.getFlashCardId() + "\">"
+    contents += "<input type=\"hidden\" name=\"flash_card_id\" value=\""
+        + flashCard.getFlashCardId() + "\">"
         + "<button type=\"submit\">Submit Flash Card Labels</button>"
         + "</form>";
     return contents;

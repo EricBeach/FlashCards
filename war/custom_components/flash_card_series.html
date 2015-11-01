@@ -249,18 +249,26 @@ FlashCardSeries.prototype.loadFlashCard = function(elementWrapper, indexNum) {
    this.currentFlashCardIndexNum_ = indexNum;
 
    if (this.currentFlashCardIndexNum_ <= 0) {
-     elementWrapper.querySelector('#previous-flash-card-link').classList.remove('show-element');
-     elementWrapper.querySelector('#previous-flash-card-link').classList.add('hide-element');
+     elementWrapper.querySelector(
+         '#previous-flash-card-link').classList.remove('show-element');
+     elementWrapper.querySelector(
+         '#previous-flash-card-link').classList.add('hide-element');
    } else {
-     elementWrapper.querySelector('#previous-flash-card-link').classList.remove('hide-element');
-     elementWrapper.querySelector('#previous-flash-card-link').classList.add('show-element');   
+     elementWrapper.querySelector(
+         '#previous-flash-card-link').classList.remove('hide-element');
+     elementWrapper.querySelector(
+         '#previous-flash-card-link').classList.add('show-element');   
    }
    if (this.currentFlashCardIndexNum_ >= this.flashCards_.length - 1) {
-      elementWrapper.querySelector('#next-flash-card-link').classList.remove('show-element');
-      elementWrapper.querySelector('#next-flash-card-link').classList.add('hide-element');
+      elementWrapper.querySelector(
+          '#next-flash-card-link').classList.remove('show-element');
+      elementWrapper.querySelector(
+          '#next-flash-card-link').classList.add('hide-element');
    } else {
-      elementWrapper.querySelector('#next-flash-card-link').classList.remove('hide-element');
-      elementWrapper.querySelector('#next-flash-card-link').classList.add('show-element');   
+      elementWrapper.querySelector(
+          '#next-flash-card-link').classList.remove('hide-element');
+      elementWrapper.querySelector(
+          '#next-flash-card-link').classList.add('show-element');   
    }
 };
 
@@ -290,21 +298,27 @@ FlashCardSeries.prototype.populateFlashCardElement = function() {
       progressSliderElement.setAttribute('max', this_.flashCards_.length - 1);
     }
     progressSliderElement.addEventListener('change', function() {
-      this_.loadFlashCard(this_.elementWrapper_, progressSliderElement.immediateValue);
+      this_.loadFlashCard(this_.elementWrapper_,
+          progressSliderElement.immediateValue);
     });
 
     // Attach event listeners to next/prev.
-    this_.elementWrapper_.querySelector('#next-flash-card-link').addEventListener('click', function() {
-      this_.loadFlashCard(this_.elementWrapper_, this_.currentFlashCardIndexNum_ + 1);
+    this_.elementWrapper_.querySelector(
+        '#next-flash-card-link').addEventListener('click', function() {
+      this_.loadFlashCard(this_.elementWrapper_,
+          this_.currentFlashCardIndexNum_ + 1);
       progressSliderElement.increment();
     });
-    this_.elementWrapper_.querySelector('#previous-flash-card-link').addEventListener('click', function() {
-      this_.loadFlashCard(this_.elementWrapper_, this_.currentFlashCardIndexNum_ - 1);
+    this_.elementWrapper_.querySelector(
+        '#previous-flash-card-link').addEventListener('click', function() {
+      this_.loadFlashCard(this_.elementWrapper_,
+          this_.currentFlashCardIndexNum_ - 1);
       progressSliderElement.decrement();
     });
 
     // put flash card in
-    this_.loadFlashCard.call(this_, this_.elementWrapper_, this_.currentFlashCardIndexNum_);
+    this_.loadFlashCard.call(this_, this_.elementWrapper_,
+        this_.currentFlashCardIndexNum_);
     resolve();
   });
   return promise;
@@ -316,7 +330,8 @@ FlashCardSeries.prototype.populateFlashCardElement = function() {
   var thatDoc = document;
 
   // Refers to the 'importee'
-  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+  var thisDoc =
+      (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
   // Gets content from <template>
   var template = thisDoc.querySelector('template').content;

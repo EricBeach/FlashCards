@@ -1,3 +1,4 @@
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -23,11 +24,13 @@
     }
   </style>
   <div id="element-wrapper">
+    <h1>Generate Flash Card Series</h1>
     <p>Only include words seen in the following days: <input type="number" id="include-seen-days" value="1" length="4" /></p>
     <p>Exclude words seen in the following days: <input type="number" id="exclude-seen-days" value="1" length="4" /></p>
     <p>Only include words with less than the following percent correct: <input type="number" id="percent-correct-ceiling" value="40" length="4" /> </p>
     <p>Maximum number of cards: <input type="number" id="max-num-cards-in-series" value="40" length="4" /></p>
-    <p>Labels to include</p>
+    <p>Labels to include:</p>
+    <div id="labels-contents"></div>
     <paper-button id="generate-series-button" raised class="colored" role="button">Start</paper-button>
   </div>
 </template>
@@ -97,6 +100,16 @@ FlashCardSeriesGenerator.prototype.loadFlashCardIdsInSeries = function() {
       dataToSend += 'max_num_cards_in_series=' + maxNumCardsInSeries + '&';
     }
 
+    var labelCheckboxElems = this_.elementWrapper_.querySelectorAll(
+        'paper-checkbox[name="labelId"][checked]');
+    if (labelCheckboxElems.length > 0) {
+      dataToSend += 'label_ids=';
+    }
+    for (var i = 0; i < labelCheckboxElems.length; i++) {
+      var labelId = parseInt(labelCheckboxElems[i].getAttribute('value'), 10);
+      dataToSend += labelId + '&';
+    }
+
     if (dataToSend.length > 0) {
       dataToSend = dataToSend.substr(0, dataToSend.length - 1);
     }
@@ -107,7 +120,7 @@ FlashCardSeriesGenerator.prototype.loadFlashCardIdsInSeries = function() {
       if (req.status == 200) {
         this_.flashCardIdsInSeries_ = JSON.parse(req.response);
         if (this_.flashCardIdsInSeries_.length == 0) {
-          reject('No flash card IDs loaded.');
+          reject('No flash card IDs available that matched criteria.');
         } else {
           resolve();
         }
@@ -166,10 +179,40 @@ FlashCardSeriesGenerator.prototype.populateElement = function() {
 
   var promise = new Promise(function(resolve, reject) {
 
-    this_.elementWrapper_.querySelector('#generate-series-button').addEventListener('click', function() {
+    var labelHtml = '';
+    var indentPadding = '';
+    var addSpacingString = '&nbsp;&nbsp;&nbsp;';
+    var previousLabel = null;
+    console.log(this_.labels_);
+    for (var i = 0; i < this_.labels_.length; i++) {
+      if (this_.labels_[i].parentLabelId == -1 ||
+        previousLabel == null) {
+        indentPadding = '';
+      } else if (this_.labels_[i].parentLabelId ==
+                 previousLabel.parentLabelId) {
+      } else if (this_.labels_[i].parentLabelId ==
+                 previousLabel.labelId) {
+        indentPadding += addSpacingString;
+      } else {
+        indentPadding = indentPadding.substring(
+            0, indentPadding.length - addSpacingString.length);
+      }
+      labelHtml += '<p>' + indentPadding +
+          '<paper-checkbox name="labelId" value="' +
+          this_.labels_[i].labelId + '"></paper-checkbox> ' +
+        this_.labels_[i].labelName + '</p>';
+      previousLabel = this_.labels_[i];
+    }
+
+    this_.elementWrapper_.querySelector(
+        '#labels-contents').innerHTML = labelHtml;
+
+    this_.elementWrapper_.querySelector(
+        '#generate-series-button').addEventListener('click', function() {
       this_.loadFlashCardIdsInSeries.call(this_)
-          .then(this_.loadFlashCardSeriesElement.bind(this_), function(rejectionReason) {
-            alert('An error occurred loading flash card ids');
+          .then(this_.loadFlashCardSeriesElement.bind(this_),
+              function(rejectionReason) {
+            alert('An error occurred loading flash card ids: ' + rejectionReason);
           });
     });
 
@@ -184,7 +227,8 @@ FlashCardSeriesGenerator.prototype.populateElement = function() {
   var thatDoc = document;
 
   // Refers to the 'importee'
-  var thisDoc =  (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
+  var thisDoc =
+      (thatDoc._currentScript || thatDoc.currentScript).ownerDocument;
 
   // Gets content from <template>
   var template = thisDoc.querySelector('template').content;
