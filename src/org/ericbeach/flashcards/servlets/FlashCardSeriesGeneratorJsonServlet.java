@@ -52,7 +52,7 @@ public class FlashCardSeriesGeneratorJsonServlet extends HttpServlet {
           Integer.parseInt(req.getParameter("percent_correct_series"), 10);
     }
 
-    Set<Integer> labelIdsToInclude = new HashSet<Integer>();
+    Set<Long> labelIdsToInclude = new HashSet<Long>();
     if (req.getParameter("label_ids") != null
         && req.getParameter("label_ids").length() > 0) {
       labelIdsToInclude = getLabelIdsToInclude(req.getParameter("label_ids"));
@@ -61,12 +61,23 @@ public class FlashCardSeriesGeneratorJsonServlet extends HttpServlet {
     String userEmailAddress = usersService.getCurrentUserEmailAddress();
     List<Long> flashCardIds = flashCardSeriesGeneratorService.getFlashCardIdsByCriteria(
         includeCardsSeenInLastXDays, excludeCardsSeenInLastYDays, maxNumCardsInSeries,
-        includeCardsAnsweredLessThanZPercentCorrectInSeries, userEmailAddress);
+        includeCardsAnsweredLessThanZPercentCorrectInSeries, userEmailAddress,
+        labelIdsToInclude);
     resp.getWriter().println(getFlashCardIdsAsJson(flashCardIds));
   }
 
-  private Set<Integer> getLabelIdsToInclude(String labelIds) {
-    return null;
+  private Set<Long> getLabelIdsToInclude(String inputLabelIds) {
+    Set<Long> labelIdsToInclude = new HashSet<Long>();
+    String pattern = "^[0-9]+(,[0-9]+)*$";
+    if (!inputLabelIds.matches(pattern)) {
+      return labelIdsToInclude;
+    }
+
+    String[] flashCardIds = inputLabelIds.split(",");
+    for (String flashCardId : flashCardIds) {
+      labelIdsToInclude.add(Long.parseLong(flashCardId));
+    }
+    return labelIdsToInclude;
   }
 
   private String getFlashCardIdsAsJson(List<Long> flashCardIds) {

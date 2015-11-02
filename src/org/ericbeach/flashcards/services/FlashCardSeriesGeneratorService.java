@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import org.ericbeach.flashcards.datastore.FlashCardDatastoreHelper;
 import org.ericbeach.flashcards.datastore.FlashCardInteractionDatastoreHelper;
+import org.ericbeach.flashcards.datastore.FlashCardLabelDatastoreHelper;
 
 public class FlashCardSeriesGeneratorService {
   public static final int CRITERIA_NOT_SET = -1;
@@ -18,16 +19,20 @@ public class FlashCardSeriesGeneratorService {
       new FlashCardInteractionDatastoreHelper();
   private final FlashCardDatastoreHelper flashCardDatastoreHelper =
       new FlashCardDatastoreHelper();
+  private final FlashCardLabelDatastoreHelper flashCardLabelDatastoreHelper =
+      new FlashCardLabelDatastoreHelper();
 
   public List<Long> getFlashCardIdsByCriteria(int includeCardsSeenInLastXDays,
       int excludeCardsSeenInLastYDays, int maxNumCardsInSeries,
-      int includeCardsAnsweredLessThanZPercentCorrectInSeries, String userEmailAddress) {
+      int includeCardsAnsweredLessThanZPercentCorrectInSeries, String userEmailAddress,
+      Set<Long> labelIdsToInclude) {
     log.info("includeCardsSeenInLastXDays: " + includeCardsSeenInLastXDays);
     log.info("excludeCardsSeenInLastYDays: " + excludeCardsSeenInLastYDays);
     log.info("maxNumCardsInSeries: " + maxNumCardsInSeries);
     log.info("includeCardsAnsweredLessThanZPercentCorrectInSeries: "
         + includeCardsAnsweredLessThanZPercentCorrectInSeries);
     log.info("userEmailAddress: " + userEmailAddress);
+    log.info("labelIdsToInclude #: " + labelIdsToInclude.size());
 
     // Start by getting all flash cards. This is necessary or the end-user
     // will be in a catch-22 where he never sees more than the 20 cards on the homepage
@@ -61,6 +66,15 @@ public class FlashCardSeriesGeneratorService {
               userEmailAddress, includeCardsAnsweredLessThanZPercentCorrectInSeries);
     }
 
+    // FULFILL labelIdsToInclude
+    Set<Long> labelMatchingFlashCardIds = new HashSet<Long>();
+    if (!labelIdsToInclude.isEmpty()) {
+      for (long labelId : labelIdsToInclude) {
+        labelMatchingFlashCardIds.addAll(
+            flashCardLabelDatastoreHelper.getAllFlashCardIdsByLabelId(labelId, true));
+      }
+    }
+
     // CREATE end result.
     // Find union of the above criteria.
     Set<Long> allFilteredFlashCardIds = new HashSet<Long>();
@@ -73,6 +87,9 @@ public class FlashCardSeriesGeneratorService {
       if ((excludeCardsSeenInLastYDays != CRITERIA_NOT_SET
           || includeCardsSeenInLastXDays != CRITERIA_NOT_SET)
           && !timeConstrainedFlashCardIds.contains(flashCardId)) {
+        allFilteredFlashCardIds.remove(flashCardId);
+      }
+      if (!labelIdsToInclude.isEmpty() && !labelMatchingFlashCardIds.contains(flashCardId)) {
         allFilteredFlashCardIds.remove(flashCardId);
       }
     }

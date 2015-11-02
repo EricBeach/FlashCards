@@ -1,9 +1,12 @@
 package org.ericbeach.flashcards.datastore;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import org.ericbeach.flashcards.models.Label;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -23,6 +26,7 @@ public class FlashCardLabelDatastoreHelper {
   private static final Logger log = Logger.getLogger(FlashCardLabelDatastoreHelper.class.getName());
 
   private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+  private final LabelDatastoreHelper labelDatastoreHelper = new LabelDatastoreHelper();
 
   public Set<Long> getAllLabelIdsForFlashCardByFlashCardId(long flashCardId) {
     Set<Long> labelIds = new HashSet<Long>();
@@ -38,11 +42,25 @@ public class FlashCardLabelDatastoreHelper {
 
   public Set<Long> getAllFlashCardIdsByLabelId(long labelId, boolean includeChildrenLabels) {
     Set<Long> flashCardIds = new HashSet<Long>();
-    Filter labelIdFilter =
+    Filter originalLabelIdFilter =
         new FilterPredicate(FLASH_CARD_LABEL_LABEL_ID_PROPERTY_NAME,
                             FilterOperator.EQUAL,
                             labelId);
 
+    List<Filter> labelIdFilters = new ArrayList<Filter>();
+    labelIdFilters.add(originalLabelIdFilter);
+    if (includeChildrenLabels) {
+      List<Label> childrenLabels = labelDatastoreHelper.getAllDescendantLabelsByLabelId(labelId);
+      for (Label label : childrenLabels) {
+        Filter childLabelIdFilter =
+            new FilterPredicate(FLASH_CARD_LABEL_LABEL_ID_PROPERTY_NAME,
+                                FilterOperator.EQUAL,
+                                label.getLabelId());
+        labelIdFilters.add(childLabelIdFilter);
+      }
+    }
+
+    Filter labelIdFilter = CompositeFilterOperator.or(labelIdFilters);
     Query query = new Query(FLASH_CARD_LABEL_KIND).setFilter(labelIdFilter);
     List<Entity> listOfFlashCardLabels =
         datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
