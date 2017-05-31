@@ -1,7 +1,8 @@
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../custom_components/flash_card_series.html">
 <link rel="import" href="flash_card.html">
 <template id="flash_card_series_generator">
@@ -25,12 +26,24 @@
   </style>
   <div id="element-wrapper">
     <h1>Generate Flash Card Series</h1>
-    <p>Only include words seen in the following days: <input type="number" id="include-seen-days" value="1" length="4" /></p>
-    <p>Exclude words seen in the following days: <input type="number" id="exclude-seen-days" value="1" length="4" /></p>
-    <p>Only include words with less than the following percent correct: <input type="number" id="percent-correct-ceiling" value="40" length="4" /> </p>
-    <p>Maximum number of cards: <input type="number" id="max-num-cards-in-series" value="40" length="4" /></p>
-    <p>Labels to include:</p>
-    <div id="labels-contents"></div>
+    <fieldset>
+      <legend>General Criteria</legend>
+      <p>Only include words seen in the following days: <input type="number" id="include-seen-days" value="-1" length="4" /></p>
+      <p>Exclude words seen in the following days: <input type="number" id="exclude-seen-days" value="-1" length="4" /></p>
+      <p>Only include words with less than the following percent correct: <input type="number" id="percent-correct-ceiling" value="40" length="4" /> </p>
+      <p>Maximum number of cards: <input type="number" id="max-num-cards-in-series" value="40" length="4" /></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Labels</legend>
+      <div id="labels-contents"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Language</legend>
+      <div id="language-content">
+        <p><paper-checkbox name="language" value="zh-CN"></paper-checkbox> zh-CN</p>
+      </div>
+    </fieldset>
     <paper-button id="generate-series-button" raised class="colored" role="button">Start</paper-button>
   </div>
 </template>

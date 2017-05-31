@@ -21,6 +21,7 @@
     height: 100%;
   }
 
+  /* make content smaller on mobile */
   @media (max-width: 600px) {
     .centered-content {
       font-size: 1.75em;
@@ -45,7 +46,7 @@
     bottom: 0;
     left: 0;
     padding-left: 20px;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
   }
 
   .footer-right-links {
@@ -53,7 +54,7 @@
     bottom: 0;
     right: 0;
     padding-right: 20px;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
   }
 
   .footer-right-links core-icon,
@@ -77,10 +78,15 @@
   @media (max-width: 850px) {
     .footer-right-links core-icon,
     .footer-left-links core-icon {
-      margin: 0px 12px 0px 12px;
+      margin: 0px 15px 0px 15px;
+    }
+
+    /* make icons easier to touch on mobile */
+    core-icon {
+      height: 30px !important;
+      width: 30px !important;
     }
   }
-
   .container .card-content-block-container {
     width: 100%;
   }

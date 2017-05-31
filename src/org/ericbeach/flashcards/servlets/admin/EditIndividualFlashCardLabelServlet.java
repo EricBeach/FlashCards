@@ -107,16 +107,13 @@ public class EditIndividualFlashCardLabelServlet extends HttpServlet {
         spacing = spacing.substring(0, spacing.length() - addSpacingString.length());
       }
 
-      if (label.hasChildrenLabels()) {
-        contents += "<p>" + spacing + label.getLabelName() + "</p>";
-      } else {
-        String checked = "";
-        if (currentLabelIds.contains(label.getLabelId())) {
-          checked = " checked=\"checked\"";
-        }
-        contents += "<p>" + spacing + "<input type=\"checkbox\" name=\"label_id\" " + checked
-            + " value=\"" + label.getLabelId() + "\">" + label.getLabelName() + "</p>";
+      String checked = "";
+      if (currentLabelIds.contains(label.getLabelId())) {
+        checked = " checked=\"checked\"";
       }
+      contents += "<p>" + spacing + "<input type=\"checkbox\" name=\"label_id\" " + checked
+          + " value=\"" + label.getLabelId() + "\">" + label.getLabelName() + "</p>";
+
       previousLabel = label;
     }
     contents += "</fieldset>";

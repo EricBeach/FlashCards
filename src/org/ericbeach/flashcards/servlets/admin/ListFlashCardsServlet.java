@@ -1,6 +1,7 @@
 package org.ericbeach.flashcards.servlets.admin;
 
 import org.ericbeach.flashcards.datastore.FlashCardDatastoreHelper;
+import org.ericbeach.flashcards.datastore.FlashCardLabelDatastoreHelper;
 import org.ericbeach.flashcards.models.FlashCard;
 
 import java.io.IOException;
@@ -13,7 +14,10 @@ import java.util.List;
 
 @SuppressWarnings("serial")
 public class ListFlashCardsServlet extends HttpServlet {
-  private final FlashCardDatastoreHelper flashCardDatastoreHelper = new FlashCardDatastoreHelper();
+  private final FlashCardDatastoreHelper flashCardDatastoreHelper =
+      new FlashCardDatastoreHelper();
+  private final FlashCardLabelDatastoreHelper flashCardLabelDatastoreHelper =
+      new FlashCardLabelDatastoreHelper();
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -43,12 +47,14 @@ public class ListFlashCardsServlet extends HttpServlet {
 
     int i = 1;
     for (FlashCard flashCard : flashCards) {
+      int numLabelsActive = flashCardLabelDatastoreHelper
+          .getAllLabelIdsForFlashCardByFlashCardId(flashCard.getFlashCardId()).size();
       contents += "<tr>"
       + "  <td>" + i + "</td>"
       + "  <td><a href=\"/admin/edit_individual_flashcard?flash_card_id="
       + flashCard.getFlashCardId() + "\">x</a></td>"
       + "  <td><a href=\"/admin/edit_applied_labels?flash_card_id="
-      + flashCard.getFlashCardId() + "\">x</a></td>"
+      + flashCard.getFlashCardId() + "\">x</a> " + numLabelsActive + "</td>"
       + "  <td>x</td>"
       + "  <td>&nbsp;</td>"
       + "  <td>" + flashCard.getFlashCardId() + "</td>"

@@ -214,8 +214,11 @@ public class FlashCardInteractionDatastoreHelper {
         // Do nothing. Case will be when an ID doesn't exist, meaning its defacto value is 0.
       }
       int timesAttempted = entry.getValue();
-      if ((timesAnsweredCorrectly / timesAttempted) * 100
-          < includeCardsAnsweredLessThanZPercentCorrectInSeries) {
+
+      Double percentAnsweredCorrect =
+          ((double) timesAnsweredCorrectly / (double) timesAttempted) * 100;
+      if (percentAnsweredCorrect
+          < (double) includeCardsAnsweredLessThanZPercentCorrectInSeries) {
         matchingFlashCardIds.add(flashCardId);
       }
     }
