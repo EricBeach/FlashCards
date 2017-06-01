@@ -32,7 +32,7 @@ public class FlashCardSeriesGeneratorService {
     log.info("includeCardsAnsweredLessThanZPercentCorrectInSeries: "
         + includeCardsAnsweredLessThanZPercentCorrectInSeries);
     log.info("userEmailAddress: " + userEmailAddress);
-    log.info("labelIdsToInclude #: " + labelIdsToInclude.size());
+    log.info("num labelIdsToInclude: " + labelIdsToInclude.size());
 
     // Start by getting all flash cards. This is necessary or the end-user
     // will be in a catch-22 where he never sees more than the 20 cards on the homepage

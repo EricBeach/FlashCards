@@ -120,7 +120,7 @@ FlashCardSeriesGenerator.prototype.loadFlashCardIdsInSeries = function() {
     }
     for (var i = 0; i < labelCheckboxElems.length; i++) {
       var labelId = parseInt(labelCheckboxElems[i].getAttribute('value'), 10);
-      dataToSend += labelId + '&';
+      dataToSend += labelId + ',';
     }
 
     if (dataToSend.length > 0) {
@@ -196,7 +196,7 @@ FlashCardSeriesGenerator.prototype.populateElement = function() {
     var indentPadding = '';
     var addSpacingString = '&nbsp;&nbsp;&nbsp;';
     var previousLabel = null;
-    console.log(this_.labels_);
+
     for (var i = 0; i < this_.labels_.length; i++) {
       if (this_.labels_[i].parentLabelId == -1 ||
         previousLabel == null) {
